@@ -1,0 +1,26 @@
+=== Phase 1 FP8+MTP=3 GATES (image d0a200f77546) ===
+
+--- Gate 1: Fibonacci 5x temp=0 ---
+  Run1: PASS
+  Run2: PASS
+  Run3: PASS
+  Run4: PASS
+  Run5: PASS
+Gate 1: 5/5  -> PASS
+
+--- Gate 2: Tool call (Tokyo weather) ---
+  finish=tool_calls tool_calls=1
+    get_weather({"city": "Tokyo"})
+Gate 2: PASS
+
+--- Gate 3: Reasoning (47*83=3901) ---
+  finish=stop, content[:200]: 'To calculate 47 × 83:\n47 × 80 = 3760\n47 × 3 = 141\n3760 + 141 = 3901\n\n3901'
+Gate 3: PASS
+
+--- Gate 4: Multi-turn (Tokyo->Berlin->which warmer) ---
+  T1: 'Acknowledged.'
+  T2: 'Acknowledged.'
+  T3: 'Tokyo is warmer.'
+Gate 4: PASS
+
+=== SUMMARY: Gates passed = 4/4 ===

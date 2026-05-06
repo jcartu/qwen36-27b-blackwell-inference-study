@@ -1,0 +1,13 @@
+╭─────────────────────────────── Configuration ────────────────────────────────╮
+│ LLM Inference Benchmark                                                      │
+│ Model: qwen3.6-27b @ localhost:11437                                         │
+│ Decode concurrency: [1]                                                      │
+│ Decode contexts: ['244k']                                                    │
+│ Duration: 30.0s per decode test | Max tokens: 2048                           │
+│ Prefill: skipped | Sustained decode: 1 cells                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KV cache budget (manual): 1,089,600 tokens
+Cannot connect to server at http://localhost:11437: All connection attempts 
+failed
+Make sure SGLang or vLLM is running and the port is correct.
+No results collected.

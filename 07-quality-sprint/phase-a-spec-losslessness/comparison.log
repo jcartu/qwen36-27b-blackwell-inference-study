@@ -1,0 +1,49 @@
+================================================================================
+PHASE A: FP8+MTP=3 vs FP8+no-spec at temp=0, seed=42
+================================================================================
+prompt          | identical?   | mtp3_chars |  nospec_chars |     diff
+--------------------------------------------------------------------------------
+fib             | ⚠ content==  |         85 |            85 |        0
+code_python     | ⚠ content==  |        136 |           136 |        0
+math            | ❌ DIFFER     |        381 |           362 |       19
+haiku           | ❌ DIFFER     |        261 |           264 |        3
+explain_diff    | ❌ DIFFER     |        457 |           510 |       53
+json_extract    | ⚠ content==  |         61 |            61 |        0
+code_review     | ❌ DIFFER     |        427 |           451 |       24
+factual         | ⚠ content==  |         66 |            66 |        0
+
+
+Full (reasoning+content) identical: 0/8
+Content-only identical: 4/8
+
+================================================================================
+DETAILED DIFFS (where content differs)
+================================================================================
+
+--- math ---
+First divergence at char 46/362
+MTP3:   ...'To calculate 47 × 83, we can use the standard '|'long multiplication method:\n\n**Step 1:** Multiply 47 by the ones digit of 83 (which is 3):\n47 × 3 = '...
+NoSpec: ...'To calculate 47 × 83, we can use the standard '|'multiplication method:\n\n**Step 1:** Multiply 47 by the ones digit of 83 (which is 3):\n47 × 3 = 141\n\n'...
+
+--- haiku ---
+First divergence at char 15/261
+MTP3:   ...'1.\nDark clouds '|'gather low,\nLightning flashes bright and loud,\nThunder shakes the ground.\n\n2.\nRain drums on the roof'...
+NoSpec: ...'1.\nDark clouds '|'fill the sky,\nLightning splits the dark in two,\nThunder shakes the ground.\n\n2.\nSky turns deep and gr'...
+
+--- explain_diff ---
+First divergence at char 139/457
+MTP3:   ...'ough error checking and automatic retransmission, '|'making it ideal for applications like web browsing and file transfers. In contrast, UDP is connectio'...
+NoSpec: ...'ough error checking and automatic retransmission, '|'while UDP is connectionless and transmits data without ensuring delivery, order, or error correction'...
+
+--- code_review ---
+First divergence at char 111/427
+MTP3:   ...'` function, which can cause unexpected errors and '|'reduce code clarity.\n2. Using `range(len(lst))` with index-based access is unpythonic and less effic'...
+NoSpec: ...'` function, which can cause unexpected errors and '|'violates standard naming conventions.\n2. Using `range(len(lst))` with index-based access is unpython'...
+
+================================================================================
+SPEED COMPARISON
+================================================================================
+Total wall time: MTP=3 52.1s vs no-spec 82.6s
+Total tokens:    MTP=3 7812 vs no-spec 7107
+Effective tok/s: MTP=3 149.9 vs no-spec 86.0
+MTP=3 speedup: 1.74x

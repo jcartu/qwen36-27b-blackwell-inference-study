@@ -1,0 +1,15 @@
+╭─────────────────────────────── Configuration ────────────────────────────────╮
+│ LLM Inference Benchmark                                                      │
+│ Model: Qwen3.6-27B @ localhost:11435                                         │
+│ Decode concurrency: [4]                                                      │
+│ Decode contexts: ['0']                                                       │
+│ Duration: 30.0s per decode test | Max tokens: 2048                           │
+│ Prefill: skipped | Sustained decode: 1 cells                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KV cache budget (manual): 1,844,943 tokens
+Engine: vLLM 0.1.dev16359+ga3e24c99b.d20260505  Models: ['Qwen3.6-27B', 
+'qwen3.6-27b']
+Model context length: 262,144 tokens
+Prefill tests: skipped
+Done.
+

@@ -1,0 +1,54 @@
+cu130-nightly: Pulling from vllm/vllm-openai
+285a6137f572: Pulling fs layer
+50b7925ddfc2: Pulling fs layer
+087874d94482: Pulling fs layer
+a572e6183ccd: Pulling fs layer
+73da7c119c44: Pulling fs layer
+d90507cfc983: Pulling fs layer
+f83cc4cb22e4: Pulling fs layer
+7ef0959cfff3: Pulling fs layer
+66f058341f2e: Pulling fs layer
+44b30c56e69b: Pulling fs layer
+378147a00954: Pulling fs layer
+e52be5a352b8: Pulling fs layer
+a54a71b8c9fb: Pulling fs layer
+0ddd6c4da5fb: Pulling fs layer
+d0a2a1a8e12b: Pulling fs layer
+1114d3b45d4d: Pulling fs layer
+5383dba09a94: Pulling fs layer
+e0e871c18f7d: Pulling fs layer
+9fbd56f89247: Pulling fs layer
+07dd47c1a712: Pulling fs layer
+285a6137f572: Download complete
+285a6137f572: Pull complete
+a572e6183ccd: Download complete
+66f058341f2e: Download complete
+d90507cfc983: Download complete
+73da7c119c44: Download complete
+e52be5a352b8: Download complete
+5383dba09a94: Download complete
+378147a00954: Download complete
+9fbd56f89247: Download complete
+378147a00954: Pull complete
+a54a71b8c9fb: Download complete
+1114d3b45d4d: Download complete
+d0a2a1a8e12b: Download complete
+7ef0959cfff3: Download complete
+50b7925ddfc2: Download complete
+0ddd6c4da5fb: Download complete
+087874d94482: Download complete
+44b30c56e69b: Download complete
+087874d94482: Pull complete
+e0e871c18f7d: Download complete
+e0e871c18f7d: Pull complete
+7ef0959cfff3: Pull complete
+a572e6183ccd: Pull complete
+9fbd56f89247: Pull complete
+07dd47c1a712: Download complete
+f83cc4cb22e4: Download complete
+f83cc4cb22e4: Pull complete
+e52be5a352b8: Pull complete
+07dd47c1a712: Pull complete
+1114d3b45d4d: Pull complete
+5383dba09a94: Pull complete
+0ddd6c4da5fb: Pull complete

@@ -1,0 +1,39 @@
+=== EXP-1 plan: 25 runs ===
+c4_ctx0|4|0|run3
+c2_ctx250k|2|250k|run2
+c4_ctx0|4|0|run1
+c2_ctx244k|2|244k|run1
+c1_ctx128k|1|128k|run2
+c1_ctx128k|1|128k|run3
+c2_ctx244k|2|244k|run4
+c4_ctx128k|4|128k|run2
+c4_ctx128k|4|128k|run1
+c4_ctx128k|4|128k|run4
+...
+25
+[12:02:29] [1/25] RUN: c4_ctx0 run3 (conc=4 ctx=0)
+[12:05:21] [2/25] RUN: c2_ctx250k run2 (conc=2 ctx=250k)
+[12:07:14] [3/25] RUN: c4_ctx0 run1 (conc=4 ctx=0)
+[12:08:14] [4/25] RUN: c2_ctx244k run1 (conc=2 ctx=244k)
+[12:10:06] [5/25] RUN: c1_ctx128k run2 (conc=1 ctx=128k)
+[12:11:25] [6/25] RUN: c1_ctx128k run3 (conc=1 ctx=128k)
+[12:12:45] [7/25] RUN: c2_ctx244k run4 (conc=2 ctx=244k)
+[12:14:37] [8/25] RUN: c4_ctx128k run2 (conc=4 ctx=128k)
+[12:15:59] [9/25] RUN: c4_ctx128k run1 (conc=4 ctx=128k)
+[12:17:20] [10/25] RUN: c4_ctx128k run4 (conc=4 ctx=128k)
+[12:18:42] [11/25] RUN: c1_ctx128k run4 (conc=1 ctx=128k)
+[12:20:02] [12/25] RUN: c4_ctx0 run4 (conc=4 ctx=0)
+[12:21:01] [13/25] RUN: c2_ctx250k run4 (conc=2 ctx=250k)
+[12:22:54] [14/25] RUN: c1_ctx128k run1 (conc=1 ctx=128k)
+[12:24:15] [15/25] RUN: c2_ctx250k run1 (conc=2 ctx=250k)
+[12:26:09] [16/25] RUN: c2_ctx250k run3 (conc=2 ctx=250k)
+[12:28:03] [17/25] RUN: c4_ctx0 run2 (conc=4 ctx=0)
+[12:29:02] [18/25] RUN: c2_ctx244k run3 (conc=2 ctx=244k)
+[12:30:53] [19/25] RUN: c4_ctx128k run5 (conc=4 ctx=128k)
+[12:32:16] [20/25] RUN: c1_ctx128k run5 (conc=1 ctx=128k)
+[12:33:36] [21/25] RUN: c2_ctx244k run2 (conc=2 ctx=244k)
+[12:35:29] [22/25] RUN: c2_ctx244k run5 (conc=2 ctx=244k)
+[12:37:22] [23/25] RUN: c2_ctx250k run5 (conc=2 ctx=250k)
+[12:39:15] [24/25] RUN: c4_ctx0 run5 (conc=4 ctx=0)
+[12:40:15] [25/25] RUN: c4_ctx128k run3 (conc=4 ctx=128k)
+[12:41:36] EXP-1 driver complete: 25/25 runs

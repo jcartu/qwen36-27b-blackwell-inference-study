@@ -1,0 +1,83 @@
+╭─────────────────────────────── Configuration ────────────────────────────────╮
+│ LLM Inference Benchmark                                                      │
+│ Model: Qwen3.6-27B @ localhost:11435                                         │
+│ Decode concurrency: [2]                                                      │
+│ Decode contexts: ['31k']                                                     │
+│ Duration: 30.0s per decode test | Max tokens: 2048                           │
+│ Prefill: skipped | Sustained decode: 1 cells                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KV cache budget (manual): 1,846,472 tokens
+Engine: vLLM 0.1.dev16400+g910d87a9d.d20260505  Models: ['Qwen3.6-27B', 
+'qwen3.6-27b']
+Model context length: 262,144 tokens
+Prefill tests: skipped
+Calibrating padding text (run=hmmeiincxqdb, up to 31k)...
+  Token targeting: single-point estimate from 8k (use --token-targeting exact 
+for /tokenize binary search)
+  Calibrated: 6.20 chars/token (cached, source=8k)
+  31k: 198,377 chars (~31,999 tokens)
+Done.
+
+
+
+llm-decode-bench v0.4.8
+╭────────────────────────────────── Phase 2 ───────────────────────────────────╮
+│ Sustained Decode                                                             │
+│ Steady-state decode throughput after the engine has admitted the requested   │
+│ concurrency and passed warmup. Use this as the main tuning/regression signal │
+│ for kernels, NCCL, DCP, MTP, and scheduler changes.                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Aggregate tok/s  + TTFT/ITL 
+╭────────────┬─────────────╮
+│ ctx \ conc │           2 │
+├────────────┼─────────────┤
+│ 31k        │ 232.8 328/8 │
+╰────────────┴─────────────╯
+Sustained Decode: aggregate tok/s uses OpenAI stream usage by default 
+(continuous completion_tokens when the server supports it). Prometheus is kept 
+as validation/scheduler data.
+Aggregate source(s): openai_continuous_usage
+Per-Request tok/s     
+╭────────────┬───────╮
+│ ctx \ conc │     2 │
+├────────────┼───────┤
+│ 31k        │ 116.4 │
+╰────────────┴───────╯
+Client request latency: p50 
+/ p90 ms                    
+╭────────────┬─────────────╮
+│ ctx \ conc │           2 │
+├────────────┼─────────────┤
+│ 31k        │ 17.4k/18.3k │
+╰────────────┴─────────────╯
+Aggregate cells show dim detail as TTFT ms / ITL ms for the same ctx/conc 
+coordinate. ITL is computed from observed generated tokens, including streams 
+stopped at the measurement boundary; a missing ITL means no stream produced at 
+least two measured output tokens. Per-request tok/s and request latency are 
+shown in separate per-cell matrices. Completion/sample counts and full 
+request-level distributions remain in JSON under request_samples.
+Sustained mode: client latency metrics explain request UX variance; aggregate 
+tok/s remains the primary throughput signal. 
+ITL=(last_token_time-first_token_time)/(output_tokens-1), user tok/s=1/ITL.
+
+╭────────────────────────────────── Phase 3 ───────────────────────────────────╮
+│ Burst / E2E Decode                                                           │
+│ Not run. Re-run with --run-burst to append a finite client-facing request    │
+│ burst after Sustained Decode. This is intentionally disabled by default      │
+│ because it adds another full decode matrix.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭────────────────────────────── Primary Summary ───────────────────────────────╮
+│ Primary matrices repeated last so the important numbers are visible without  │
+│ scrolling back through diagnostics.                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Aggregate decode tok/s
+╭────────────┬───────╮
+│ ctx \ conc │     2 │
+├────────────┼───────┤
+│ 31k        │ 232.8 │
+╰────────────┴───────╯
+
+Results saved to 
+/home/josh/qwen-vllm-test/bench/new-image-validation/phase1-fp8mtp3/runs/c2_ctx3
+2000_run3/results.json

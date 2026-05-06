@@ -1,0 +1,70 @@
+╭─────────────────────────────── Configuration ────────────────────────────────╮
+│ LLM Inference Benchmark                                                      │
+│ Model: qwen3.6-27b @ localhost:11437                                         │
+│ Decode concurrency: [1]                                                      │
+│ Decode contexts: ['244k']                                                    │
+│ Duration: 30.0s per decode test | Max tokens: 2048                           │
+│ Prefill: skipped | Sustained decode: 1 cells                                 │
+╰──────────────────────────────────────────────────────────────────────────────╯
+KV cache budget (manual): 4,268,776 tokens
+Engine: vLLM 0.20.1  Models: ['Qwen3.6-27B-NVFP4-MTP', 'qwen3.6-27b']
+Model context length: 262,144 tokens
+Prefill tests: skipped
+Calibrating padding text (run=abgrykzdhypq, up to 244k)...
+  Token targeting: single-point estimate from 8k (use --token-targeting exact 
+for /tokenize binary search)
+  Calibrated: 6.20 chars/token (cached, source=8k)
+  244k: 1,550,313 chars (~249,999 tokens)
+Done.
+
+
+
+llm-decode-bench v0.4.8
+╭────────────────────────────────── Phase 2 ───────────────────────────────────╮
+│ Sustained Decode                                                             │
+│ Steady-state decode throughput after the engine has admitted the requested   │
+│ concurrency and passed warmup. Use this as the main tuning/regression signal │
+│ for kernels, NCCL, DCP, MTP, and scheduler changes.                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Aggregate tok/s          
+╭────────────┬──────────╮
+│ ctx \ conc │        1 │
+├────────────┼──────────┤
+│ 244k       │ ∅ (1/1)* │
+╰────────────┴──────────╯
+Sustained Decode: aggregate tok/s uses OpenAI stream usage by default 
+(continuous completion_tokens when the server supports it). Prometheus is kept 
+as validation/scheduler data.
+Aggregate source(s): prometheus_fallback
+∅ = skipped/hidden because the cell does not fit in KV cache; exact deficit is 
+kept in JSON timeout_reason
+(X/Y) = avg running / requested concurrency from Prometheus; * = 
+capacity-limited or warmup timed out
+Per-Request tok/s        
+╭────────────┬──────────╮
+│ ctx \ conc │        1 │
+├────────────┼──────────┤
+│ 244k       │ ∅ (1/1)* │
+╰────────────┴──────────╯
+
+╭────────────────────────────────── Phase 3 ───────────────────────────────────╮
+│ Burst / E2E Decode                                                           │
+│ Not run. Re-run with --run-burst to append a finite client-facing request    │
+│ burst after Sustained Decode. This is intentionally disabled by default      │
+│ because it adds another full decode matrix.                                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
+╭────────────────────────────── Primary Summary ───────────────────────────────╮
+│ Primary matrices repeated last so the important numbers are visible without  │
+│ scrolling back through diagnostics.                                          │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Aggregate decode tok/s   
+╭────────────┬──────────╮
+│ ctx \ conc │        1 │
+├────────────┼──────────┤
+│ 244k       │ ∅ (1/1)* │
+╰────────────┴──────────╯
+
+Results saved to 
+/home/josh/qwen-vllm-test/bench/nvfp4-mtp-experiment/phase4-bench-v201/runs/c1_c
+tx250000_run3/results.json

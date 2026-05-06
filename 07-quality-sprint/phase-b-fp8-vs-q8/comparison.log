@@ -1,0 +1,130 @@
+================================================================================
+PHASE B: FP8+MTP=3 (vLLM Repne fork) vs Q8_0 GGUF (llama.cpp)
+Both at temp=0, top_p=1, seed=42
+================================================================================
+prompt          | identical? | fp8_chars | q8_chars |  fp8 reasoning |  q8 reasoning
+------------------------------------------------------------------------------------------
+fib             | ✅          |        85 |       85 |           1351 |          2787
+code_python     | ❌          |       136 |      143 |           2597 |         17887
+math            | ❌          |       381 |      297 |           2156 |          3565
+haiku           | ❌          |       261 |      246 |           3953 |          3668
+explain_diff    | ❌          |       457 |      507 |           3035 |          1958
+json_extract    | ✅          |        61 |       61 |           2798 |          2484
+code_review     | ❌          |       427 |      469 |           7961 |          5636
+factual         | ✅          |        66 |       66 |           1253 |          3393
+
+================================================================================
+DETAILED DIFFS (ignoring reasoning, just final content)
+================================================================================
+
+=== code_python ===
+--- FP8+MTP=3 (136 chars) ---
+```python
+def is_palindrome(s: str) -> bool:
+    cleaned = [c.lower() for c in s if c.isalnum()]
+    return cleaned == cleaned[::-1]
+```
+--- Q8 GGUF (143 chars) ---
+```python
+def is_palindrome(s: str) -> bool:
+    cleaned = "".join(c.lower() for c in s if c.isalnum())
+    return cleaned == cleaned[::-1]
+```
+
+=== math ===
+--- FP8+MTP=3 (381 chars) ---
+To calculate 47 × 83, we can use the standard long multiplication method:
+
+**Step 1:** Multiply 47 by the ones digit of 83 (which is 3):
+47 × 3 = 141
+
+**Step 2:** Multiply 47 by the tens digit of 83 (which is 8), and shift one place to the left (equivalent to multiplying by 80):
+47 × 80 = 3,760
+
+**Step 3:** Add the two partial products together:
+  141
++3,760
+-------
+ 3,901
+
+3901
+--- Q8 GGUF (297 chars) ---
+Step 1: Multiply 47 by the ones digit of 83 (which is 3):
+47 × 3 = 141
+
+Step 2: Multiply 47 by the tens digit of 83 (which is 8), and shift the result one place to the left (equivalent to multiplying by 80):
+47 × 80 = 3,760
+
+Step 3: Add the two partial products together:
+141 + 3,760 = 3,901
+
+3901
+
+=== haiku ===
+--- FP8+MTP=3 (261 chars) ---
+1.
+Dark clouds gather low,
+Lightning flashes bright and loud,
+Thunder shakes the ground.
+
+2.
+Rain drums on the roof,
+Heavy drops wash dust away,
+Fresh scent fills the air.
+
+3.
+Silver snake in sky,
+Roar of thunder shakes the house,
+World turns white, then black.
+--- Q8 GGUF (246 chars) ---
+1.
+Sky turns dark and gray,
+Lightning flashes bright and loud,
+Thunder shakes the ground.
+
+2.
+Rain begins to fall,
+Drums of thunder beat the sky,
+Rivers run so fast.
+
+3.
+Silver fork of light,
+Roaring voice of angry clouds,
+World washes clean now.
+
+=== explain_diff ===
+--- FP8+MTP=3 (457 chars) ---
+TCP is a connection-oriented protocol that guarantees reliable, ordered data delivery through error checking and automatic retransmission, making it ideal for applications like web browsing and file transfers. In contrast, UDP is connectionless and prioritizes speed over reliability by sending data without delivery guarantees or sequencing, which makes it better suited for latency-sensitive, real-time applications like video streaming and online gaming.
+--- Q8 GGUF (507 chars) ---
+TCP is a connection-oriented protocol that guarantees reliable, ordered data delivery through error checking and automatic retransmission, while UDP is connectionless and sends data without verifying delivery or maintaining packet order. This makes TCP slower but essential for accuracy-critical tasks like web browsing and file transfers, whereas UDP is faster and better suited for real-time applications like video streaming and online gaming where low latency outweighs the need for perfect reliability.
+
+=== code_review ===
+--- FP8+MTP=3 (427 chars) ---
+1. Naming the function `sum` shadows Python's built-in `sum()` function, which can cause unexpected errors and reduce code clarity.
+2. Using `range(len(lst))` with index-based access is unpythonic and less efficient than directly iterating over the elements with `for item in lst:`.
+3. The function lacks input validation and type hints, making it vulnerable to runtime errors when passed non-numeric or non-iterable arguments.
+--- Q8 GGUF (469 chars) ---
+1. Naming the function `sum` shadows Python's built-in `sum()` function, which can cause unexpected errors or break existing code that relies on the original.
+2. Using `range(len(lst))` with index-based access is unpythonic and less efficient than directly iterating over the elements with `for item in lst:`.
+3. Manually implementing this logic reinvents a highly optimized built-in function that already exists, runs faster in C, and handles edge cases more robustly.
+
+================================================================================
+REASONING LENGTH COMPARISON
+================================================================================
+prompt          |  fp8 reasoning |  q8 reasoning |    q8/fp8 ratio
+fib             |           1351 |          2787 |            2.06
+code_python     |           2597 |         17887 |            6.89
+math            |           2156 |          3565 |            1.65
+haiku           |           3953 |          3668 |            0.93
+explain_diff    |           3035 |          1958 |            0.65
+json_extract    |           2798 |          2484 |            0.89
+code_review     |           7961 |          5636 |            0.71
+factual         |           1253 |          3393 |            2.71
+
+Mean q8/fp8 reasoning ratio: 2.06x
+
+================================================================================
+SPEED
+================================================================================
+FP8+MTP=3: 52.1s wall, 7812 tokens, effective 149.9 tok/s
+Q8 GGUF: 188.3s wall, 13127 tokens, effective 69.7 tok/s

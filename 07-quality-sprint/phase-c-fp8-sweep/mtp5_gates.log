@@ -1,0 +1,6 @@
+=== MTP=5 gates ===
+Gate 1 Fib: PASS -- '1, 1, 2, 3, 5, 8, 13, 21, 34, 55'
+Gate 2 Tool: PASS
+Gate 3 Reasoning: PASS
+Gate 4 Multi-turn: PASS -- T3: 'Tokyo is warmer.'
+=== 4/4 ===

@@ -1,0 +1,10 @@
+=== Phase 2a DFlash=15 gates ===
+Gate 1 Fib: PASS -- 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+Gate 2 Tool: PASS -- [{'id': 'chatcmpl-tool-b5c4968b33cc8c0b', 'type': 'function', 'function': {'name': 'get_weather', 'arguments': '{"city": "Tokyo"}'}}]
+Gate 3 Reasoning: PASS -- To calculate 47 × 83:
+47 × 80 = 3760
+47 × 3 = 141
+3760 + 141 = 3901
+3901
+Gate 4 Multi-turn: PASS -- T3: 'Tokyo is warmer.'
+=== 4/4 ===

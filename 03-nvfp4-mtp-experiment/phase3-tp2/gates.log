@@ -1,0 +1,39 @@
+=== TP=2 Gate 2: Fibonacci 5x temp=0 ===
+  Run1: PASS [stop] 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+  Run2: PASS [stop] 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+  Run3: PASS [stop] 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+  Run4: PASS [stop] 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+  Run5: PASS [stop] 1, 1, 2, 3, 5, 8, 13, 21, 34, 55
+Gate 2: 5/5 -> PASS
+
+=== TP=2 Gate 3: Tool call (Tokyo weather) ===
+  finish=tool_calls tool_calls=1
+    get_weather({"city": "Tokyo"})
+Gate 3: PASS
+
+=== TP=2 Gate 4: Multi-turn ===
+  T1: 'Acknowledged.'
+  T2: 'Acknowledged.'
+  T3: 'Tokyo is warmer.'
+Gate 4: PASS
+
+=== TP=2 Gate 5: Reasoning (47*83) ===
+  finish=stop content[:300]: To calculate 47 × 83, you can break it down:
+47 × 80 = 3760
+47 × 3 = 141
+3760 + 141 = 3901
+
+3901
+Gate 5: PASS
+=== TP=2 Gate 6: Long-context coherence at 131K ===
+  Prompt char length: 380,261
+  Estimated tokens (~3.3 chars/tok): ~126,753
+  prompt_tokens: 90084, completion: 241
+  elapsed: 12.8s
+  finish=stop content[:300]: 'RAINBOW-7421-SAPPHIRE'
+Gate 6: PASS
+=== TP=2 Gate 6b: 131K stricter (true 131K tokens) ===
+  prompt chars: 580,306
+  prompt_tokens: 137,462, completion: 450, elapsed: 23.3s
+  content: 'RAINBOW-7421-SAPPHIRE'
+Gate 6b: PASS
