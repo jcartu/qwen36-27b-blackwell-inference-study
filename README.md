@@ -1,3 +1,10 @@
+[![← qwen-bench hub](https://img.shields.io/badge/%E2%86%90-qwen--bench_hub-blueviolet?style=for-the-badge)](https://github.com/jcartu/qwen-bench)
+
+> Part of the [`qwen-bench`](https://github.com/jcartu/qwen-bench) ongoing benchmark series.
+> See the hub for the current SOTA leaderboard and a chronological index of all studies.
+
+---
+
 # Empirical Characterization of Qwen3.6-27B Inference on Dual NVIDIA RTX PRO 6000 Blackwell
 
 **Eight experiments, 1,200+ benchmark runs, 102K-token KL-divergence quality probe.**
