@@ -159,7 +159,7 @@ See [`SOTA.md`](./SOTA.md) for full discussion.
 Unless otherwise noted, all aggregate-throughput cells used:
 - Tensor parallelism = 2 (one shard per GPU)
 - Max model length = 262 144 tokens
-- Reasoning parser = `qwen3`, tool-call parser = `qwen3_coder`
+- Reasoning parser = `qwen3`, tool-call parser = `qwen3_coder` (Exp 01–08); Exp 09 switched to `qwen3_xml` (vLLM v13 default for Qwen3-family). Exp 10 benchmarks `qwen3_coder` vs `qwen3_xml` head-to-head.
 - Prefix caching enabled
 - Sustained-decode mode: 30 s active window + 10 s warmup
 - `--skip-prefill` (decode-only measurement to isolate the speculative-decoding regime from one-time prefill cost)

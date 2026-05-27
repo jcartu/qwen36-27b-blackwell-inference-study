@@ -40,6 +40,14 @@ Exp 06 used N=3 and we saw 5-8% intra-cell variance at high concurrency. We went
 - `--max-model-len 134144` (just over 131k to give bench scenarios slack)
 - Bench: prompt length matches ctx_tokens, output length 1024, requests = 5×concurrency
 
+### Tool-call & reasoning parsers (relevant for Phase D)
+
+- `--tool-call-parser qwen3_xml` (vLLM v13 default for Qwen3-family; **not** `qwen3_coder`, which Exp 01–08 used)
+- `--reasoning-parser qwen3`
+- `--enable-auto-tool-choice`
+
+> **Note on parser choice.** vLLM ships two tool-call parsers for Qwen3-family models: `qwen3_xml` (XML-tagged tool calls, used here) and `qwen3_coder` (used in earlier experiments in this study). The Phase D tool-calling score below (93/100, ranked #1) was obtained with `qwen3_xml`. Whether `qwen3_coder` produces equal/better/worse tool-calling quality on the same model + image is the subject of [Experiment 10](../10-parser-axis/) (in progress).
+
 ## Pass A — BF16 + DFlash N=8
 
 <!-- AUTO-GENERATED FROM A-summary.md -->
