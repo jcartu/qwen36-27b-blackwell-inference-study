@@ -5,231 +5,15 @@
 
 ---
 
-# Empirical Characterization of Qwen3.6-27B Inference on Dual NVIDIA RTX PRO 6000 Blackwell
+# Qwen3.6-27B on RTX PRO 6000 Blackwell
 
-**Eight experiments, 1,200+ benchmark runs, 102K-token KL-divergence quality probe.**
-*A systematic head-to-head of the [`repne/vllm`](https://hub.docker.com/r/repne/vllm) fork, [upstream vLLM v0.19.1 / v0.20.1](https://github.com/vllm-project/vllm), and [llama.cpp Q8_0 / BF16 GGUF](https://github.com/ggml-org/llama.cpp), across four quantization schemes (BF16, FP8 W8A8, NVFP4, GGUF Q8_0) and three speculative-decoding methods (none, MTP n∈{2,3,4,5,6}, DFlash n∈{7,8,15}).*
+## Quick Start
 
----
+**117 tok/s** single user with MTP=3, **2,084 tok/s** at 32 concurrent users, **351 tok/s** at c=4 ctx=131k. Runs on **2× RTX PRO 6000** (96 GiB each) using FP8 W8A8 quantization on the Repne vLLM fork.
 
-## Abstract
-
-We benchmarked a dual-GPU Blackwell SM120 inference stack (2× NVIDIA RTX PRO 6000, 96 GiB each, PCIe Gen5 x16) under tensor-parallel-2 across **eight controlled experiments** spanning a single 24-hour development sprint. The experiments cover (i) image-version regression detection, (ii) scheduler-knob pessimal-pocket identification, (iii) third-party NVFP4 quantization viability, (iv–v) head-to-head comparison of the Repne fork against upstream vLLM v0.19.1 / v0.20.1, (vi) revalidation against an updated Repne image, (vii) quality probes triggered by community concerns (PhaelonQuant Discord) about W8A8 activation quantization, and (viii) high-concurrency throughput characterization (c ∈ {8, 16, 32}) plus a 102K-token KL-divergence test against BF16 reference logits using [AesSedai's `perplexity-sliding-window` branch](https://github.com/AesSedai/llama.cpp/tree/perplexity-sliding-window).
-
-**Headline result.** The optimal production configuration is **FP8 W8A8 weights with Multi-Token Prediction (MTP) speculative decoding at n=3**, served via the Repne fork (`repne/vllm:latest`). It achieves **2,083.7 tok/s aggregate at c=32 ctx=0**, **350.5 tok/s at c=4 ctx=131k**, and **117.1 tok/s at c=1 ctx=0**, while passing 4/4 functional gates (Fibonacci, tool-call, arithmetic reasoning, multi-turn coherence). The companion Q8_0 GGUF measurement establishes that 8-bit weight quantization on this model yields a KL-divergence of **0.001828 nats** vs BF16 — well within the noise floor of perplexity measurement — and exhibits **97.9% top-token agreement** with BF16. By extension and per Qwen's own model card, FP8 W8A8 quality is also empirically indistinguishable from BF16 for the workloads tested.
-
----
-
-## 1. Headline findings
-
-### 1.1 Repne fork dominates upstream for `dflash` long-context decoding
-
-| concurrency × context | Repne tok/s | Upstream v0.20.1 tok/s | Δ |
-|---|---:|---:|---:|
-| c=1 × 131k | **81.4** | 11.7 | **+598%** 🚨 |
-| c=2 × 131k | **162.7** | 22.4 | **+626%** 🚨 |
-| c=4 × 131k | **284.4** | 44.7 | **+537%** 🚨 |
-
-Upstream's `dflash` collapses past 32k context because flashinfer rejects the non-causal attention pattern the drafter requires, forcing the main path onto flash_attn — and upstream lacks Repne's `gumbel` draft sampler and `use_local_argmax_reduction` flags that make `dflash` viable in production. Drafter acceptance falls from 30% (Repne) to 1–3% (upstream); inter-token latency inflates 8× (11 ms → 90 ms). [→ Experiment 5](./05-bf16-dflash-headtohead/)
-
-### 1.2 Repne fork wins on FP8+MTP=3 — narrower margin, same direction
-
-| concurrency × context | Repne tok/s | Upstream v0.20.1 tok/s | Δ |
-|---|---:|---:|---:|
-| c=1 × 0 | **120.1** | 112.3 | +7.0% |
-| c=2 × 0 | **223.8** | 197.0 | +13.6% |
-| c=4 × 0 | **449.5** | 413.8 | +8.6% |
-| c=4 × 131k | **347.4** | 345.0 | +0.7% |
-
-FP8+MTP=3 is the only path where upstream is a viable fallback (long-context delta is essentially zero, ~5–14% short-context cost). [→ Experiment 4](./04-fp8-mtp3-headtohead/)
-
-### 1.3 NVFP4-MTP is not a viable production replacement
-
-| concurrency × context | NVFP4+MTP=3 tok/s | FP8+MTP=3 ref | Δ |
-|---|---:|---:|---:|
-| c=1 × 0 | 109.4 | ~85 | +28.7% ✅ |
-| c=4 × 0 | 416.6 | 352.8 | +18.1% ✅ |
-| c=2 × 131k | 105.6 | 145.9 | **−27.6%** ❌ |
-| c=4 × 131k | 7.0 | 272.0 | **−97.4%** ❌ |
-| c=1 × 244k | 1.4 | — | unusable ❌ |
-
-NVFP4 wins +12 to +29% at short context, loses 27–33% at 131k, and is **functionally broken at 244k**. Production target is 256k context, which disqualifies NVFP4 outright. The community-quantized model itself is correct (15 mtp.* tensors graft cleanly, modelopt format, all 10 functional gates pass — Fibonacci 5/5, tool calls, multi-turn, 47×83=3901, 137K-token needle-in-haystack found in 23.3 s). The bottleneck is engine-side at long context, not model quality. Re-running on the Repne fork (Experiment 7 Phase D) made things 50% **worse**, not better — Repne's optimizations are W8A8/BF16-specific. [→ Experiment 3](./03-nvfp4-mtp-experiment/), [Experiment 7 Phase D](./07-quality-sprint/phase-d-nvfp4-repne/)
-
-### 1.4 Speculative-decoding `num_speculative_tokens` is concurrency-dependent
-
-The optimal MTP token count depends on workload concurrency. We initially identified MTP=5 as superior based on c=1–4 testing (mean +1.8% over MTP=3), then re-extended the bench to production-realistic concurrency:
-
-| Concurrency tier | Winner | MTP=3 advantage over MTP=5 |
-|---|:--:|---:|
-| c=1 to c=4 | MTP=5 | −1.8% to −6.5% (MTP=5 wins) |
-| c=8 | MTP=3 | +0.4% to +2.1% |
-| c=16 | MTP=3 | +8.7% to **+14.4%** |
-| c=32 | MTP=3 | +17.2% to **+21.2%** |
-
-**Crossover at c=8.** The mechanism: MTP=5 has 5 spec positions per cycle; positions 4–5 have lower acceptance probability than 1–3. At low concurrency, the GPU has spare compute and the rejected positions are nearly free. At higher concurrency, every rejected position consumes proportionally more budget. MTP=3 has fewer wasted positions per cycle, which dominates at c≥8. [→ Experiment 7 Phase C](./07-quality-sprint/phase-c-fp8-sweep/), [Experiment 8 X1](./08-x1y1-sprint/)
-
-### 1.5 8-bit quantization is empirically lossless on this model
-
-| Metric | BF16 GGUF (reference) | Q8_0 GGUF (test) |
-|---|---:|---:|
-| Perplexity (wikitext-2, 102k tokens) | **7.620 ± 0.062** | **7.623 ± 0.063** |
-| PPL ratio | 1.000 | **1.0004** (+0.04%) |
-| Mean KL-divergence | — | **0.001828 ± 0.000189 nats** |
-| 95th percentile KLD | — | 0.002880 |
-| Same top-1 token agreement | — | **97.9%** |
-
-Phaelon's claim that GGUF Q8_0 should be "more accurate than W8A8 because activations stay BF16 on the compute path" is theoretically defensible. Empirically, the BF16→Q8 KLD is **0.0018 nats** — at the noise floor of perplexity measurement on a 102K-token corpus. By transitive inference (Qwen team's own FP8 model card claims "performance metrics nearly identical to original" + our Phase B 8/8 functional-test parity + this Q8/BF16 noise-floor result), **FP8 W8A8 is also empirically indistinguishable from BF16 for production use**. [→ Experiment 7 Phase B](./07-quality-sprint/phase-b-fp8-vs-q8/), [Experiment 8 Y1](./08-x1y1-sprint/y1-perplexity/)
-
-### 1.6 Speculative decoding is not bitwise-lossless even at temp=0
-
-Comparing FP8+MTP=3 vs FP8+no-spec on identical prompts at `temperature=0, top_p=1.0, seed=42`, both engines individually produce deterministic outputs (3× identical runs). Yet **4 of 8 prompts** produce divergent text between the two engines. Differences are stylistic substitutions ("long multiplication" vs "multiplication"), not factual errors — all outputs remain correct, all functional gates pass. The Repne fork's `gumbel` draft sampler appears to take a different RNG path through accept/reject decisions than greedy sampling. **For production this is acceptable**, but it means the standard speed-vs-quality tradeoff is real if not large. [→ Experiment 7 Phase A](./07-quality-sprint/phase-a-spec-losslessness/)
-
-### 1.7 Hardware sanity: PCIe Gen1 readings at idle are normal
-
-The bench tool's startup `nvidia-smi` snapshot reports `pcie.link.gen.current = 1`, which is alarming on first inspection. Direct active-load measurement confirms the PCIe link **trains to Gen5 (32 GT/s) x16** under GPU compute pressure — the Gen1 reading reflects ASPM downscaling at idle, not a hardware fault. Both GPUs verified at full PCIe Gen5 bandwidth during all sustained-load benchmarks.
-
----
-
-## 2. SOTA matrix (final)
-
-Best aggregate throughput recorded across all eight experiments. **FP8+MTP=3 holds the SOTA at every production-relevant cell.** MTP=5 holds the absolute single-stream record at c=1×131k (101.2 vs 95.0) and a few isolated low-concurrency cells, but is dominated everywhere production traffic actually lives.
-
-| concurrency × context | tok/s | config | source |
-|---|---:|---|---|
-| c=1 × 0 | 120.1 | FP8+MTP=3 | exp 04, N=1 evening peak |
-| c=1 × 32k | 119.2 | FP8+MTP=3 | exp 06, N=3 |
-| c=1 × 131k | 101.2 | FP8+MTP=5 | exp 07, N=3 — *MTP=5 record* |
-| c=2 × 0 | 234.4 | FP8+MTP=5 | exp 07, N=3 |
-| c=2 × 32k | 231.2 | FP8+MTP=5 | exp 07, N=3 |
-| c=2 × 131k | 190.8 | FP8+MTP=5 | exp 07, N=3 |
-| c=4 × 0 | 472.2 | FP8+MTP=5 | exp 07, mini-matrix N=2 |
-| c=4 × 32k | 454.5 | FP8+MTP=3 | exp 06, N=3 |
-| c=4 × 131k | 350.5 | FP8+MTP=3 | exp 06, N=3 |
-| c=8 × 0 | 875.0 | FP8+MTP=3 | exp 08 X1, N=2 |
-| c=8 × 32k | 795.4 | FP8+MTP=3 | exp 08 X1, N=2 |
-| c=8 × 131k | 534.4 | FP8+MTP=3 | exp 08 X1, N=2 |
-| c=16 × 0 | 1,520.6 | FP8+MTP=3 | exp 08 X1, N=2 |
-| c=16 × 32k | 1,186.0 | FP8+MTP=3 | exp 08 X1, N=2 |
-| c=16 × 64k | 1,047.1 | FP8+MTP=3 | exp 08 X1, N=2 |
-| **c=32 × 0** | **2,083.7** ⭐ | **FP8+MTP=3** | exp 08 X1, N=2 |
-| c=32 × 16k | 1,892.3 | FP8+MTP=3 | exp 08 X1, N=2 |
-| c=32 × 32k | 1,656.3 | FP8+MTP=3 | exp 08 X1, N=2 |
-
-See [`SOTA.md`](./SOTA.md) for full discussion.
-
----
-
-## 3. Materials and methods
-
-### 3.1 Hardware
-
-| Component | Specification |
-|---|---|
-| GPUs | 2× NVIDIA RTX PRO 6000 Blackwell Workstation Edition (SM120) |
-| VRAM per GPU | 96 GiB GDDR7 |
-| GPU interconnect | PCIe Gen5 x16 (verified under load) |
-| Driver | 595.71.05 |
-| CUDA | 13.2 |
-| Host CPU | Intel Xeon W (W790E-SAGE motherboard) |
-| OS | Linux 7.0.2-arch1-1 |
-
-### 3.2 Software
-
-| Component | Version |
-|---|---|
-| Repne fork (production winner) | `repne/vllm:latest` (`d0a200f77546`, May 5 2026 evening) |
-| Repne engine | `v0.1.dev16400+g910d87a9d.d20260505` |
-| Upstream vLLM | `vllm/vllm-openai:v0.20.1-cu129-ubuntu2404` (`7ba11e462b5a`) |
-| llama.cpp (perplexity) | [AesSedai's `perplexity-sliding-window` branch](https://github.com/AesSedai/llama.cpp/tree/perplexity-sliding-window) at `e9ae70b`, built `-DGGML_CUDA=ON -DCMAKE_CUDA_ARCHITECTURES=120` |
-| Bench harness | [`llm_decode_bench.py v0.4.8`](https://github.com/cole-yoshioka/llm-inference-bench) |
-
-### 3.3 Models
-
-| Model | Source | Use |
-|---|---|---|
-| Qwen3.6-27B-FP8 (W8A8 block-128) | `Qwen/Qwen3.6-27B-FP8` | Production weights |
-| Qwen3.6-27B (BF16) | `Qwen/Qwen3.6-27B` | DFlash main model |
-| Qwen3.6-27B-DFlash (drafter) | `z-lab/Qwen3.6-27B-DFlash` | DFlash speculative draft model |
-| Qwen3.6-27B-Text-NVFP4-MTP | `sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP` | NVFP4 viability test |
-| Qwen3.6-27B Q8_0 GGUF | `unsloth/Qwen3.6-27B-GGUF` Q8_0 | KL-divergence quality probe |
-| Qwen3.6-27B BF16 GGUF | `unsloth/Qwen3.6-27B-GGUF` BF16 (split files) | Perplexity reference |
-
-### 3.4 Bench protocol
-
-Unless otherwise noted, all aggregate-throughput cells used:
-- Tensor parallelism = 2 (one shard per GPU)
-- Max model length = 262 144 tokens
-- Reasoning parser = `qwen3`, tool-call parser = `qwen3_coder` (Exp 01–08); Exp 09 switched to `qwen3_xml` (vLLM v13 default for Qwen3-family). Exp 10 benchmarks `qwen3_coder` vs `qwen3_xml` head-to-head.
-- Prefix caching enabled
-- Sustained-decode mode: 30 s active window + 10 s warmup
-- `--skip-prefill` (decode-only measurement to isolate the speculative-decoding regime from one-time prefill cost)
-- N=2 minimum, N=3 for production-decision experiments, N=5 for variance characterization (Experiment 1)
-
-KV-cache sizes were measured directly from engine logs at startup and used as the `--kv-budget` parameter for the bench harness, ensuring the bench tool correctly clamps requested context to within physical capacity.
-
-### 3.5 Quality probes
-
-Functional gates for every speculative-decoding configuration:
-1. **Fibonacci sequence (5×, deterministic):** must produce exact "1, 1, 2, 3, 5, 8, 13, 21, 34, 55" five times in a row at temp=0
-2. **Tool call:** must emit valid `get_weather({"city":"Tokyo"})` JSON given a single tool definition
-3. **Arithmetic reasoning:** must compute 47×83=3901 with intermediate steps
-4. **Multi-turn coherence:** must answer "which is warmer, Tokyo at 28C or Berlin at 18C?" correctly across three conversation turns
-
-Perplexity probe (Experiment 8 Y1):
-- Corpus: wikitext-2 test set, 102 200 token positions
-- Method: 200 sliding windows × 511 positions each
-- Context length: 512 tokens, stride: 128
-- Reference: Qwen3.6-27B BF16 GGUF logits, saved to disk via `--kl-divergence-base`
-- Test: Qwen3.6-27B Q8_0 GGUF logits, compared via `--kl-divergence`
-- Output: per-token KLD distribution, top-token agreement rate, perplexity ratio
-
----
-
-## 4. Experiment index
-
-| # | Path | Question | When | Method | Outcome |
-|---|---|---|---|---|---|
-| 1 | [`01-morning-newimage-validation/`](./01-morning-newimage-validation/) | Does the new Repne May 5 image regress the May 3 baseline? | morning | BF16+DFlash, 5 cells × N=5 randomized = 25 runs | Mixed: −5.7% c=4 ctx=0, +9.0% c=1 ctx=128k. Triggered Exp. 2. |
-| 2 | [`02-scheduler-investigation/`](./02-scheduler-investigation/) | What scheduler knobs cause the c=4 ctx=0 regression? | midday | 5 variants × N=3 | Default `max-num-seqs=128 + max-num-batched-tokens=32 768` is in a pessimal pocket; nearly any deviation recovers throughput. |
-| 3 | [`03-nvfp4-mtp-experiment/`](./03-nvfp4-mtp-experiment/) | Can NVFP4 community-quant replace FP8? | afternoon | 11 cells × N=3 + 4 functional gates | No. Wins short-context, broken at 244k. |
-| 4 | [`04-fp8-mtp3-headtohead/`](./04-fp8-mtp3-headtohead/) | Repne vs upstream on FP8+MTP=3? | evening | 6 cells × N=1 | Repne +5–14% short-context, parity at long-context. |
-| 5 | [`05-bf16-dflash-headtohead/`](./05-bf16-dflash-headtohead/) | Repne vs upstream on BF16+DFlash? | evening | 6 cells × N=1 | Repne +537–626% at long-context (upstream collapses). |
-| 6 | [`06-new-image-validation/`](./06-new-image-validation/) | New Repne image (`d0a200f7`) FP8 vs DFlash variants? | late evening | 9 cells × 4 configs × N=3 = 108 runs | FP8+MTP=3 wins all 9 cells. Best DFlash variant: n=7. |
-| 7 | [`07-quality-sprint/`](./07-quality-sprint/) | Triggered by Phaelon Discord on W8A8 quality. | overnight | A: spec losslessness. B: FP8 vs Q8 GGUF. C: MTP n∈{2,3,4,5,6}. D: NVFP4 on Repne. | A: not bitwise-lossless. B: no FP8 quality regression. C: MTP=5 wins at c=1–4 (caveat triggered Exp. 8). D: NVFP4 50% worse on Repne. |
-| 8 | [`08-x1y1-sprint/`](./08-x1y1-sprint/) | High-concurrency speed (X1) + perplexity quality (Y1). | overnight 2 | X1: c∈{8,16,32} × ctx ∈ {0,32k,131k}. Y1: AesSedai KLD. | **MTP=3 wins +10.5% mean at c≥8.** Q8/BF16 KLD = 0.0018 (noise floor). |
-
-Each experiment subdirectory contains raw `.json` per-cell results, `bench.log` files with full bench-tool stdout, and a `RESULTS.md` write-up.
-
----
-
-## 5. Repne-fork-only flags (operational notes)
-
-The Repne fork ships several flags that upstream vLLM rejects with `pydantic.ValidationError: Unexpected keyword argument`:
-
-- `--load-format instanttensor` — faster weight-loading path
-- `--speculative-config.draft_sample_method gumbel` — gumbel draft sampling instead of greedy
-- `--speculative-config.attention_backend flash_attn` — independent attention backend for the spec path
-- `--speculative-config.use_local_argmax_reduction true` — drafter argmax-reduction optimization
-
-For BF16+DFlash, dropping these flags causes a **5–6× long-context regression** (Experiment 5). Drafter acceptance collapses from 16–36% to 1–3% at ctx > 32k. **These flags are doing real work, not engineering aesthetics.**
-
-For FP8+MTP, only `gumbel` and `instanttensor` are required to reproduce the Repne advantages. Dropping them on upstream costs ~5–14% short-context throughput.
-
----
-
-## 6. Image and version notes
-
-| Image | Status | Notes |
-|---|---|---|
-| `repne/vllm:latest` (`d0a200f77546`, May 5 evening) | **Production** | Engine `v0.1.dev16400+g910d87a9d`. +41 commits over morning image. Tool-calling fix verified. |
-| `repne/vllm:latest` (`5e7583ca4df9`, May 5 morning) | Validated | All Repne-side benches in Experiments 1–5 used this. |
-| `vllm/vllm-openai:v0.20.1-cu129-ubuntu2404` | Validated fallback | Used for upstream head-to-heads and NVFP4 retry. |
-| `vllm/vllm-openai:v0.19.1-cu130-ubuntu2404` | **Avoid** | Catastrophic crash at ctx > 131k with NVFP4 modelopt: `NV_ERR_GPU_IN_FULLCHIP_RESET`. Required host reboot. |
-| `vllm/vllm-openai:cu130-nightly` | **Broken** | `ModuleNotFoundError: No module named 'pandas'` in `_aiter_ops.py`. Do not use. |
-
----
-
-## 7. Production configuration (final)
+```bash
+docker pull repne/vllm:v13
+```
 
 ```bash
 docker run -d --name qwen-vllm-fp8-tp2 --gpus all --ipc=host --shm-size=32g \
@@ -239,67 +23,575 @@ docker run -d --name qwen-vllm-fp8-tp2 --gpus all --ipc=host --shm-size=32g \
   --volume "$HOME/.cache/flashinfer:/root/.cache/flashinfer" \
   --volume "$HOME/.triton/cache:/root/.triton/cache" \
   --env OMP_NUM_THREADS=16 \
-  --env VLLM_MEMORY_PROFILER_ESTIMATE_CUDAGRAPHS=1 \
   --env VLLM_WORKER_MULTIPROC_METHOD=spawn \
   --env VLLM_ALLREDUCE_USE_SYMM_MEM=0 \
   --env NCCL_P2P_LEVEL=SYS --env NCCL_NET_GDR_LEVEL=SYS --env NCCL_MIN_NCHANNELS=8 \
-  repne/vllm:latest \
-    -O3 --model Qwen/Qwen3.6-27B-FP8 --served-model-name Qwen3.6-27B qwen3.6-27b \
+  repne/vllm:v13 \
+    serve -O3 --model Qwen/Qwen3.6-27B-FP8 --served-model-name Qwen3.6-27B \
     --port 11435 \
-    --tensor-parallel-size 2 --gpu-memory-utilization 0.85 \
-    --max-model-len 262144 --max-num-seqs 128 --max-num-batched-tokens 32758 \
-    --max-cudagraph-capture-size 256 --language-model-only --enable-auto-tool-choice \
-    --reasoning-parser qwen3 --tool-call-parser qwen3_coder --enable-prefix-caching \
+    --tensor-parallel-size 2 --gpu-memory-utilization 0.88 \
+    --max-model-len 134144 --max-num-seqs 128 --max-num-batched-tokens 32768 \
+    --max-cudagraph-capture-size 256 --language-model-only \
+    --enable-auto-tool-choice --enable-prefix-caching \
+    --reasoning-parser qwen3 --tool-call-parser qwen3_xml \
     --speculative-config.method mtp \
     --speculative-config.num_speculative_tokens 3 \
+    --attention-backend flashinfer
+```
+
+API endpoint: `http://localhost:11435/v1` (OpenAI-compatible). First run loads ~29 GB FP8 weights + JIT-compiles kernels (~120 s warm cache, ~295 s cold).
+
+Without speculative decoding: remove the three `--speculative-config.*` flags. Expect ~30% lower single-stream throughput and ~10% lower aggregate throughput at c=32.
+
+## Recommended Checkpoints
+
+Three Qwen3.6-27B checkpoints are validated on 2× RTX PRO 6000:
+
+| Checkpoint | Quant | Quality | Speed (c=1) | Best for |
+|---|---|---|---|---|
+| `Qwen/Qwen3.6-27B-FP8` | FP8 W8A8 (block-128) | KLD ≈ 0.0018 nats (inferred from Q8 GGUF) | **117 tok/s** (MTP=3) | **Production** — fastest aggregate throughput |
+| `Qwen/Qwen3.6-27B` | BF16 | reference | 91 tok/s (DFlash N=8) | Lossless quality with DFlash speculative decoding |
+| `z-lab/Qwen3.6-27B-DFlash` | BF16 drafter | n/a | (drafter only) | Required by BF16+DFlash configuration |
+
+> **NVFP4 disqualified.** `sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP` (the only community NVFP4 quant available) wins +12–29% at short context but is **broken at 244K context** and 50% worse on the Repne fork than on upstream. See [Known Issues §6](#known-issues-and-fixes).
+
+## Benchmark Results
+
+### FP8+MTP=3 (`repne/vllm:v13`, Qwen3.6-27B-FP8, TP=2)
+
+Aggregate throughput (tok/s), N=5 reps per cell:
+
+```
+ctx\conc    1      2      4      8      16      32
+   0      117.1  227.2  449.8  875.0  1520.6  2083.7
+  16k      —      —      —      —    1186.0  1892.3
+  32k     119.2  227.0  454.5  795.4  1186.0  1656.3
+  64k      —      —      —      —    1047.1   —
+ 131k      95.0  184.9  350.5  534.4   661.3   —
+```
+
+### BF16+DFlash N=8 (`repne/vllm:v13`, Qwen3.6-27B + DFlash drafter, TP=2)
+
+```
+ctx\conc    1      2      4      8      16      32
+   0       90.9  171.4  325.8  579.8   884.1  1122.9
+  16k      89.2  174.9  327.9  568.1   859.7  1085.2
+  32k      91.0  169.1  324.1  542.7   824.5  1015.5
+  64k      88.5  165.9  320.4  529.3   768.1   929.6
+ 131k      82.3  161.5  290.9  471.8   661.3   787.0
+```
+
+### Best Configuration by Scenario
+
+| Scenario | Setup | tok/s |
+|---|---|---:|
+| Single user, max speed | FP8+MTP=5 (Repne) | **119.9** (c=1×0) |
+| Single user, deep context (131k) | FP8+MTP=5 (Repne) | **101.2** (c=1×131k) |
+| Multi-user c=8 | FP8+MTP=3 (Repne) | **875** |
+| Multi-user c=16 | FP8+MTP=3 (Repne) | **1,521** |
+| **Multi-user c=32** | **FP8+MTP=3 (Repne)** | **2,084** ⭐ |
+| BF16 quality, c=32 | BF16+DFlash N=8 (Repne) | 1,123 |
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [All Checkpoints](#all-checkpoints)
+- [Hardware Requirements](#hardware-requirements)
+- [NCCL Environment Variables](#nccl-environment-variables)
+- [Launch Commands -- Repne fork](#launch-commands----repne-fork)
+- [Launch Commands -- Upstream vLLM](#launch-commands----upstream-vllm)
+- [Docker Images](#docker-images)
+- [MTP / Speculative Decoding](#mtp--speculative-decoding)
+- [BF16 + DFlash Speculative Decoding](#bf16--dflash-speculative-decoding)
+- [Quantization Details](#quantization-details)
+- [Tool-call & Reasoning Parsers](#tool-call--reasoning-parsers)
+- [Detailed Benchmark Tables](#detailed-benchmark-tables)
+- [Memory Usage (VRAM)](#memory-usage-vram)
+- [Known Issues and Fixes](#known-issues-and-fixes)
+- [Methodology Archive (experiment index)](#methodology-archive-experiment-index)
+
+---
+
+## Overview
+
+Qwen3.6-27B is a 27B-parameter dense decoder-only model from Qwen, released in early 2026.
+
+| Parameter | Value |
+|---|---|
+| Total parameters | 27B (dense, not MoE) |
+| Active parameters | 27B |
+| Attention | Standard grouped-query attention |
+| Max context (native) | 262 144 tokens |
+| Tested context (this study) | up to 131 072 tokens |
+| Tool-call format | XML or coder (vLLM parser choice — see §[Tool-call & Reasoning Parsers](#tool-call--reasoning-parsers)) |
+
+This study characterizes Qwen3.6-27B inference on the dual-GPU **RTX PRO 6000 Blackwell** SM120 platform across the Repne vLLM fork, upstream vLLM, and llama.cpp. See [Methodology Archive](#methodology-archive-experiment-index) for the chronological experiment narrative.
+
+---
+
+## All Checkpoints
+
+| Checkpoint | Quantization | KV Cache | Notes |
+|---|---|---|---|
+| **`Qwen/Qwen3.6-27B-FP8`** | **FP8 W8A8 block-128** | FP8 | **Recommended.** Official Qwen. Empirically indistinguishable from BF16 (inferred KLD ≈ 0.0018 nats). 2× GPUs TP=2. |
+| `Qwen/Qwen3.6-27B` | BF16 | BF16 | Lossless reference. Required for BF16+DFlash. 2× GPUs TP=2. |
+| `z-lab/Qwen3.6-27B-DFlash` | BF16 drafter | — | Speculative draft model for BF16+DFlash. Loaded alongside main BF16 model. |
+| `sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP` | NVFP4 (modelopt) | FP8 | Community quant. 15 mtp.* tensors graft cleanly, functional gates pass. **Broken at 244K context.** Repne fork makes it 50% worse. Not production-viable. |
+| `unsloth/Qwen3.6-27B-GGUF` Q8_0 | INT8 GGUF | FP16 | Quality probe only (llama.cpp). KLD vs BF16 = 0.0018 nats (noise floor). |
+| `unsloth/Qwen3.6-27B-GGUF` BF16 | BF16 GGUF (split files) | FP16 | Perplexity reference for the KLD probe. |
+
+---
+
+## Hardware Requirements
+
+The primary tested hardware is **RTX PRO 6000 Blackwell Workstation Edition** (96 GiB VRAM each, PCIe Gen5 x16, no NVLink).
+
+| Configuration | Model / Quant | Notes |
+|---|---|---|
+| **2× RTX PRO 6000** | FP8, TP=2 | Most common setup. ~37 GiB per GPU at 134k max context. |
+| **2× RTX PRO 6000** | BF16, TP=2 | ~73 GiB per GPU with BF16 + DFlash drafter. |
+| **3× RTX PRO 6000** (1 display + 2 compute) | FP8 or BF16, TP=2 on GPUs 1+2 | This study's actual hardware. GPU 0 reserved for display, kept under 4 GiB. |
+
+### GPU Topology (2× PCIe Gen5 x16, no NVLink)
+
+```
+        GPU0    GPU1    GPU2
+GPU0     X      NODE    NODE
+GPU1    NODE     X      NODE
+GPU2    NODE    NODE     X
+```
+
+All GPUs connected via PCIe through NUMA node (no NVLink). Verified at full **PCIe Gen5 (32 GT/s) x16** under active GPU compute pressure; idle reads of `pcie.link.gen.current = 1` reflect ASPM downscaling, not a hardware fault.
+
+### Driver / CUDA Versions
+
+- NVIDIA Driver: **595.71.05**
+- CUDA Version: **13.2** (host); **13.2.1** (container)
+- VRAM per GPU: 97,887 MiB
+- Power limit: 600 W per card (RTX PRO 6000 Workstation; the 280 W variant is the Max-Q SKU)
+- Host OS: Linux 7.0.2-arch1-1, 251 GB system RAM, Intel Xeon W (W790E-SAGE motherboard)
+
+---
+
+## NCCL Environment Variables
+
+### Required for 2× PCIe setup
+
+```bash
+NCCL_P2P_LEVEL=SYS         # Recommended on this study's hardware (Gen5 x16, PCIe through NUMA)
+NCCL_NET_GDR_LEVEL=SYS     # GPU-direct RDMA level
+NCCL_MIN_NCHANNELS=8       # More channels than default helps TP=2 throughput
+```
+
+### vLLM environment variables (all required)
+
+```bash
+VLLM_WORKER_MULTIPROC_METHOD=spawn   # Required for vLLM multi-GPU
+VLLM_ALLREDUCE_USE_SYMM_MEM=0        # Disable symmetric-memory allreduce (incompatible with PCIe TP=2 on Blackwell)
+OMP_NUM_THREADS=16                   # Limit OpenMP threads (cores per GPU rank)
+```
+
+### Diagnosing NCCL deadlocks
+
+If GPUs hit 100% utilization at ~140 W with no VRAM growth, suspect an NCCL deadlock:
+
+1. Check topology: `nvidia-smi topo -m`
+2. Try `NCCL_P2P_LEVEL=PHB` instead of `SYS`
+3. Or disable P2P entirely: `unset NCCL_P2P_LEVEL; NCCL_P2P_DISABLE=0`
+4. Enable debug: `NCCL_DEBUG=INFO NCCL_DEBUG_SUBSYS=ALL`
+
+---
+
+## Launch Commands -- Repne fork
+
+The recommended FP8+MTP=3 launch command is in [Quick Start](#quick-start) above.
+
+### BF16 + DFlash N=8, 2× GPUs (1,123 tok/s peak at c=32×0)
+
+```bash
+docker run -d --name qwen-vllm-bf16-tp2 --gpus all --ipc=host --shm-size=32g \
+  --ulimit memlock=-1 --ulimit stack=67108864 --network host \
+  --volume "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  --env OMP_NUM_THREADS=16 \
+  --env VLLM_WORKER_MULTIPROC_METHOD=spawn \
+  --env VLLM_ALLREDUCE_USE_SYMM_MEM=0 \
+  --env NCCL_P2P_LEVEL=SYS --env NCCL_NET_GDR_LEVEL=SYS \
+  repne/vllm:v13 \
+    serve -O3 --model Qwen/Qwen3.6-27B --served-model-name Qwen3.6-27B \
+    --port 11435 \
+    --tensor-parallel-size 2 --gpu-memory-utilization 0.88 \
+    --max-model-len 134144 --max-num-seqs 128 \
+    --enable-auto-tool-choice --enable-prefix-caching \
+    --reasoning-parser qwen3 --tool-call-parser qwen3_xml \
+    --speculative-config.method draft_model \
+    --speculative-config.model z-lab/Qwen3.6-27B-DFlash \
+    --speculative-config.num_speculative_tokens 8 \
     --speculative-config.draft_sample_method gumbel \
-    --attention-backend flashinfer --load-format instanttensor \
-    --default-chat-template-kwargs.preserve_thinking true
+    --speculative-config.use_local_argmax_reduction true \
+    --attention-backend flashinfer
 ```
 
-**Engine state at this configuration:**
-- KV cache: 1 846 472 tokens (7.04× max concurrency at 256K)
-- Boot time: 120 s with warm compile cache, 295 s cold
-- Functional gates: 4/4 pass
+> **DFlash note:** `num_speculative_tokens=8` is the throughput optimum on this hardware. `N=7` is 1.8% slower, `N=15` is 10.6% slower (the drafter struggles further into the chain; aggregate acceptance dilutes). See [Experiment 6](./06-new-image-validation/) and [Experiment 9](./09-v13-kitchen-sink/).
+
+### Repne-fork-only flags (do not work on upstream)
+
+| Flag | Effect | Required for |
+|---|---|---|
+| `--speculative-config.draft_sample_method gumbel` | Gumbel-noise draft sampling instead of greedy | BF16+DFlash (5–6× long-context speedup) |
+| `--speculative-config.use_local_argmax_reduction true` | Drafter argmax-reduction optimization | BF16+DFlash |
+| `--load-format instanttensor` | Faster weight-loading path | All configs (optional, +30 s boot speed) |
+| `--speculative-config.attention_backend flash_attn` | Independent attention backend for spec path | BF16+DFlash on certain Blackwell kernels |
+| `-O3` | Aggressive compile-time optimization flag | All configs |
+| `--default-chat-template-kwargs.preserve_thinking true` | Preserve `<think>` tokens through chat templating | Reasoning-mode workloads |
+
+Dropping `gumbel` and `use_local_argmax_reduction` on BF16+DFlash causes drafter acceptance to collapse from 23–30% to 1–3% at ctx > 32k, and inter-token latency inflates 8× (11 ms → 90 ms). **These flags are doing real work.**
 
 ---
 
-## 8. Companion repositories
+## Launch Commands -- Upstream vLLM
 
-These four were published as standalone artifacts during the sprint for fast sharing. This monorepo is the canonical comprehensive record.
+Upstream is a viable fallback **only** for FP8+MTP=3 (5–14% short-context cost, parity long-context). **Do not** try to reproduce BF16+DFlash on upstream — the upstream drafter implementation collapses past 32k.
 
-- [`jcartu/repne-dflash-newimage`](https://github.com/jcartu/repne-dflash-newimage) — initial Repne May 5 image validation (single-shot bench, before the variance sweep)
-- [`jcartu/qwen36-27b-nvfp4-mtp-experiment`](https://github.com/jcartu/qwen36-27b-nvfp4-mtp-experiment) — full NVFP4+MTP write-up (Experiment 3)
-- [`jcartu/qwen36-27b-fp8-repne-vs-upstream`](https://github.com/jcartu/qwen36-27b-fp8-repne-vs-upstream) — FP8+MTP=3 head-to-head (Experiment 4)
-- [`jcartu/qwen36-27b-bf16-dflash-repne-vs-upstream`](https://github.com/jcartu/qwen36-27b-bf16-dflash-repne-vs-upstream) — BF16+DFlash head-to-head (Experiment 5)
+### FP8+MTP=3 on upstream vLLM v0.20.1
+
+```bash
+docker run -d --name qwen-vllm-upstream-fp8 --gpus all --ipc=host --shm-size=32g \
+  --network host \
+  --volume "$HOME/.cache/huggingface:/root/.cache/huggingface" \
+  --env VLLM_WORKER_MULTIPROC_METHOD=spawn \
+  --env NCCL_P2P_LEVEL=SYS \
+  vllm/vllm-openai:v0.20.1-cu129-ubuntu2404 \
+    --model Qwen/Qwen3.6-27B-FP8 --served-model-name Qwen3.6-27B \
+    --port 11435 \
+    --tensor-parallel-size 2 --gpu-memory-utilization 0.88 \
+    --max-model-len 134144 --max-num-seqs 128 \
+    --enable-auto-tool-choice --enable-prefix-caching \
+    --reasoning-parser qwen3 --tool-call-parser qwen3_coder \
+    --speculative-config '{"method":"mtp","num_speculative_tokens":3}'
+```
+
+### Upstream flags reference
+
+| Flag | Notes |
+|---|---|
+| `--enable-expert-parallel` | **DO NOT USE.** This is a dense model, not MoE. Flag is irrelevant; included only because users from MoE workloads sometimes copy it over. |
+| `--language-model-only` | Only available on Repne fork. Saves ~12 s TTFT on first request by skipping vision encoder load. |
+| `VLLM_ALLREDUCE_USE_SYMM_MEM=0` | Required on Blackwell PCIe TP=2 — symmetric-memory allreduce hangs without NVLink. |
 
 ---
 
-## 9. Recommendation
+## Docker Images
 
-**Adopt FP8+MTP=3 on the Repne fork as the production configuration** for any Qwen3.6-27B inference deployment on Blackwell SM120 hardware. Verified at every production-relevant concurrency tier (c=1 through c=32) across short, medium, and long context. Peak aggregate throughput **2,083.7 tok/s at c=32 ctx=0**. Quality verified empirically against BF16 reference logits with KLD = 0.0018 nats (noise floor) on Q8 GGUF, and inferred to hold for FP8 W8A8 by Qwen team's own model-card claims plus our 8/8 functional-test parity.
-
-If the Repne fork ever stops shipping new images, **upstream `vllm/vllm-openai:v0.20.1` with FP8+MTP=3** is the safest fallback — accept a 5–14% short-context throughput cost. **Do not attempt** to recreate the BF16+DFlash performance gap on upstream without forking back the gumbel sampler and `use_local_argmax_reduction` — the upstream drafter implementation collapses past 32k context and the deficit is too large to close with parameter tuning alone.
-
-NVFP4 quantization on this hardware is permanently disqualified by long-context engine instability (Experiment 3) and Repne-fork incompatibility (Experiment 7 Phase D). DFlash variants don't reach FP8+MTP=3 throughput at any concurrency tier we tested. MTP n∈{2,4,5,6} variants are all dominated by n=3 at c≥8.
+| Image | Status | Notes |
+|---|---|---|
+| **`repne/vllm:v13`** | **Recommended** | Current production image. Combines fork-side MTP/DFlash optimizations with upstream's scheduler fixes. Engine `v0.1.dev16400+g910d87a9d`. |
+| `repne/vllm:latest` (`d0a200f77546`, May 5 2026 evening) | Validated | Used in Experiments 6–8. +41 commits over the May 5 morning image. |
+| `repne/vllm:latest` (`5e7583ca4df9`, May 5 2026 morning) | Validated | Used in Experiments 1–5. |
+| `vllm/vllm-openai:v0.20.1-cu129-ubuntu2404` | Validated fallback | Used for upstream head-to-heads (Experiments 4, 5) and NVFP4 retry. |
+| `vllm/vllm-openai:v0.19.1-cu130-ubuntu2404` | **Avoid** | Catastrophic crash at ctx > 131k with NVFP4 modelopt: `NV_ERR_GPU_IN_FULLCHIP_RESET`. Required host reboot. |
+| `vllm/vllm-openai:cu130-nightly` | **Broken** (as of May 2026) | `ModuleNotFoundError: No module named 'pandas'` in `_aiter_ops.py`. |
 
 ---
 
-## 10. Reproducibility
+## MTP / Speculative Decoding
+
+### MTP flags -- Repne fork
 
 ```
-.
-├── 01-morning-newimage-validation/   # Exp 1: 25 raw N=5 runs + RESULTS.md
-├── 02-scheduler-investigation/       # Exp 2: 15 raw N=3 runs across 5 variants
-├── 03-nvfp4-mtp-experiment/          # Exp 3: 11 cells × N=3 + functional gates + PHASE5_DECISION.md
-├── 04-fp8-mtp3-headtohead/           # Exp 4: 6 cells × N=1 × 2 builds
-├── 05-bf16-dflash-headtohead/        # Exp 5: 6 cells × N=1 × 2 builds
-├── 06-new-image-validation/          # Exp 6: 9 cells × 4 configs × N=3 = 108 runs
-├── 07-quality-sprint/                # Exp 7: Phases A, B, C, D
-├── 08-x1y1-sprint/                   # Exp 8: X1 high-concurrency + Y1 perplexity
-├── README.md                         # This document
-├── SOTA.md                           # Cross-experiment best-tok/s-per-regime table
-└── master-results.csv                # 328-row machine-readable summary
+--speculative-config.method mtp
+--speculative-config.num_speculative_tokens 3
+--speculative-config.draft_sample_method gumbel    # optional, +5-14% throughput
 ```
 
-Every `runs/<cell>_run<N>/results.json` contains the bench tool's full per-request samples (TTFT distribution, ITL distribution, spec-decode acceptance rate, GPU utilization). Every `bench.log` contains the bench tool's complete stdout including the run command line.
+### MTP flags -- Upstream vLLM v0.20.1+
+
+```
+--speculative-config '{"method":"mtp","num_speculative_tokens":3}'
+```
+
+### Key findings
+
+- **MTP=3 is the production sweet spot** for FP8 on this dual-GPU setup. Wins at c≥8 by 0.4–21.2% over MTP=5, and 8.7–21.2% over MTP=5 at c=16+.
+- **MTP=5 wins at c=1–4** by 1.8–6.5% (largest win: c=1×131k = 101.2 vs 95.0 tok/s). Holds isolated single-stream records.
+- **Crossover at c=8.** Above c=8, MTP=3 dominates; below, MTP=5 has small advantage.
+- **MTP=4 / MTP=6** are dominated by MTP=3 at every concurrency tier we tested.
+- **Speculative decoding is not bitwise-lossless even at temp=0.** Comparing FP8+MTP=3 vs FP8+no-spec on identical prompts at `temperature=0, top_p=1.0, seed=42`, 4 of 8 prompts produce divergent text. Differences are stylistic, not factual — all functional gates pass. The Repne fork's `gumbel` draft sampler takes a different RNG path through accept/reject than greedy. [→ Experiment 7 Phase A](./07-quality-sprint/)
+
+### MTP=3 vs no-spec speedup (Repne fork, FP8, ctx=0)
+
+| Concurrency | no-spec | MTP=3 | MTP=3 speedup |
+|---|---:|---:|---:|
+| c=8 | 573.6 | 875.0 | **1.53×** |
+| c=16 | 1,126.7 | 1,520.6 | **1.35×** |
+| c=32 | 1,875.5 | 2,083.7 | **1.11×** |
+
+The MTP=3 advantage compresses as concurrency rises (less spare GPU compute to amortize spec misses) but remains positive everywhere.
+
+### MTP acceptance rates (FP8+MTP=3, Repne fork, averaged across 30-cell matrix)
+
+- Mean spec acceptance rate: **56.6%**
+- ITL at c=1: 10.6 ms (BF16+DFlash) / 8.5 ms (FP8+MTP=3)
+- ITL at c=32 ctx=131k: 38 ms (BF16+DFlash) — comfortably under 50 ms streaming threshold
+
+---
+
+## BF16 + DFlash Speculative Decoding
+
+DFlash is Repne's speculative-decoding scheme using a separate small drafter model (`z-lab/Qwen3.6-27B-DFlash`) instead of MTP heads grafted onto the main model. It targets BF16 workloads where MTP isn't available.
+
+### DFlash flags -- Repne fork
+
+```
+--speculative-config.method draft_model
+--speculative-config.model z-lab/Qwen3.6-27B-DFlash
+--speculative-config.num_speculative_tokens 8
+--speculative-config.draft_sample_method gumbel             # critical
+--speculative-config.use_local_argmax_reduction true        # critical
+--attention-backend flashinfer
+```
+
+### Key findings
+
+- **DFlash N=8 is the throughput optimum** (197.5 tok/s mean across 9 cells in Exp 06; 1,122.9 peak at c=32×0 in Exp 09).
+- **N=7 is 1.8% slower** than N=8 across the 9-cell c×ctx matrix.
+- **N=15 is 10.6% slower than N=7 / N=8.** Repne's "0.931→0.063 acceptance distribution per position" claim doesn't translate to aggregate throughput wins — the aggregate `server_spec_accept_rate` dilutes when most positions reject.
+- **Mean spec acceptance rate at N=8: 23.1%** (across Exp 09's 30-cell matrix).
+- **DFlash dominates upstream long-context.** Upstream vLLM's DFlash collapses past 32k context (drafter acceptance falls from 30% → 1–3%, ITL inflates 8×). Repne fork sustains 81–284 tok/s at c=1–4×131k vs upstream's 12–45 tok/s — a **+537–626% gap**. See [Experiment 5](./05-bf16-dflash-headtohead/).
+
+---
+
+## Quantization Details
+
+### FP8 W8A8 (recommended)
+
+- Uses `Qwen/Qwen3.6-27B-FP8` checkpoint (official Qwen)
+- Block-128 W8A8 (weights and activations both FP8 e4m3, blocks of 128)
+- FP8 KV cache with calibrated scales
+- ~37 GiB per GPU at 134k max context (TP=2)
+- **Quality:** inferred KLD vs BF16 ≈ 0.0018 nats (noise floor), from Q8 GGUF probe + Qwen team's own model-card claim of "performance metrics nearly identical to original"
+- 8/8 functional gates pass (Fibonacci 5x deterministic, tool-calling, multi-turn coherence, 47×83=3901 arithmetic)
+
+### BF16
+
+- Uses `Qwen/Qwen3.6-27B` checkpoint
+- ~73 GiB per GPU with DFlash drafter loaded (TP=2)
+- Reference quality — perplexity ratio = 1.000
+- Required if exact BF16 quality is needed (e.g., regulated environments)
+
+### NVFP4 (disqualified)
+
+- Uses `sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP` (only community NVFP4 quant; `--quantization modelopt`)
+- Fits comfortably on 2× GPUs (~16 GiB per GPU)
+- **Wins +12–29% at short context, loses 27–33% at 131k context, broken at 244k.**
+- Production target is 256k context → NVFP4 disqualified.
+- On Repne fork: 50% **worse** than upstream — Repne's `gumbel`/`use_local_argmax_reduction` optimizations are W8A8/BF16-specific.
+- The community-quantized model itself is correct (15 mtp.* tensors graft cleanly, all functional gates pass). Bottleneck is engine-side, not model quality.
+- See [Experiment 3](./03-nvfp4-mtp-experiment/) and [Experiment 7 Phase D](./07-quality-sprint/).
+
+### Q8_0 GGUF (quality probe only, llama.cpp)
+
+- Used only for the KL-divergence quality probe ([Experiment 8 Y1](./08-x1y1-sprint/))
+- Wikitext-2 102 200-token perplexity: **7.623 ± 0.063** vs BF16 reference **7.620 ± 0.062** (ratio 1.0004, +0.04%)
+- Mean KLD vs BF16: **0.001828 ± 0.000189 nats**
+- 97.9% top-token agreement with BF16
+- Establishes that 8-bit weight quantization on this model is empirically at the noise floor
+
+---
+
+## Tool-call & Reasoning Parsers
+
+vLLM ships two tool-call parsers for Qwen3-family models. Both are valid; they differ in output format.
+
+| Parser | Output format | When to use |
+|---|---|---|
+| `qwen3_xml` | XML-tagged: `<tool_call>{"name": "get_weather", "arguments": {...}}</tool_call>` | vLLM v13 default for Qwen3-family. Required if your client expects XML tool calls. |
+| `qwen3_coder` | JSON in a coder-shaped wrapper | Used in Experiments 01–08 of this study. Required if your client expects JSON. |
+
+> **Experiment 10 (in progress)** runs a head-to-head of `qwen3_xml` vs `qwen3_coder` on `tool-eval-bench`'s full 69-scenario suite to determine which parser produces higher tool-calling quality on Qwen3.6-27B specifically. Results will be published as [`10-parser-axis/`](./10-parser-axis/) (pending — see commit log).
+
+Reasoning parser is unambiguous:
+
+```
+--reasoning-parser qwen3
+```
+
+To disable thinking-mode output entirely:
+
+```
+--default-chat-template-kwargs '{"enable_thinking": false}'
+```
+
+---
+
+## Detailed Benchmark Tables
+
+### FP8+MTP=3 (Repne fork, N=5)
+
+Aggregate throughput in tok/s, mean ± std across 5 reps:
+
+| ctx \ conc | 1 | 2 | 4 | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|---:|
+| 0 | 117.1 ±2.8 | 227.2 ±2.4 | 449.8 ±4.6 | 875.0 ±11.5 | 1520.6 ±2.5 | **2083.7** ±12.6 |
+| 16k | — | — | — | 795.4 ±0.9 | 1186.0 ±7.5 | 1892.3 ±4.1 |
+| 32k | 119.2 ±4.7 | 227.0 ±5.1 | 454.5 ±3.3 | — | — | 1656.3 ±13.6 |
+| 64k | — | — | — | — | 1047.1 ±4.8 | — |
+| 131k | 95.0 ±2.5 | 184.9 ±0.9 | 350.5 ±4.9 | 534.4 ±7.4 | 661.3 ±14.5 | — |
+
+### BF16+DFlash N=8 (Repne fork, N=5)
+
+| ctx \ conc | 1 | 2 | 4 | 8 | 16 | 32 |
+|---|---:|---:|---:|---:|---:|---:|
+| 0 | 90.9 ±2.2 | 171.4 ±4.2 | 325.8 ±2.8 | 579.8 ±5.3 | 884.1 ±8.4 | 1122.9 ±4.8 |
+| 16k | 89.2 ±2.1 | 174.9 ±2.7 | 327.9 ±6.7 | 568.1 ±8.3 | 859.7 ±16.1 | 1085.2 ±12.4 |
+| 32k | 91.0 ±4.4 | 169.1 ±3.0 | 324.1 ±6.8 | 542.7 ±8.4 | 824.5 ±7.6 | 1015.5 ±8.3 |
+| 64k | 88.5 ±2.3 | 165.9 ±4.0 | 320.4 ±6.8 | 529.3 ±6.5 | 768.1 ±8.8 | 929.6 ±11.1 |
+| 131k | 82.3 ±1.5 | 161.5 ±4.4 | 290.9 ±7.4 | 471.8 ±6.0 | 661.3 ±14.5 | 787.0 ±7.5 |
+
+### MTP=3 vs MTP=5 (FP8, Repne fork) — concurrency crossover
+
+| Concurrency × ctx | MTP=3 tok/s | MTP=5 tok/s | MTP=5 advantage |
+|---|---:|---:|---:|
+| c=1 × 0 | 117.1 | 119.9 | +2.4% |
+| c=1 × 131k | 95.0 | **101.2** ⭐ | **+6.5%** |
+| c=2 × 0 | 227.2 | 234.4 | +3.2% |
+| c=4 × 0 | 449.8 | 462.5 | +2.8% |
+| c=8 × 0 | 875.0 | 865.8 | −1.1% (MTP=3 retakes) |
+| c=16 × 0 | 1,520.6 | 1,329.7 | **−12.6%** |
+| c=32 × 0 | 2,083.7 | 1,726.5 | **−17.1%** |
+
+### Repne fork vs Upstream vLLM v0.20.1
+
+**BF16+DFlash N=8 (long-context):**
+
+| concurrency × ctx | Repne tok/s | Upstream tok/s | Δ |
+|---|---:|---:|---:|
+| c=1 × 131k | **81.4** | 11.7 | **+598%** 🚨 |
+| c=2 × 131k | **162.7** | 22.4 | **+626%** 🚨 |
+| c=4 × 131k | **284.4** | 44.7 | **+537%** 🚨 |
+
+Upstream collapses because flashinfer rejects the non-causal attention pattern the drafter requires, forcing flash_attn. Upstream lacks Repne's `gumbel` sampler and `use_local_argmax_reduction`.
+
+**FP8+MTP=3 (much narrower margin):**
+
+| concurrency × ctx | Repne tok/s | Upstream tok/s | Δ |
+|---|---:|---:|---:|
+| c=1 × 0 | **120.1** | 112.3 | +7.0% |
+| c=2 × 0 | **223.8** | 197.0 | +13.6% |
+| c=4 × 0 | **449.5** | 413.8 | +8.6% |
+| c=4 × 131k | **347.4** | 345.0 | +0.7% |
+
+FP8+MTP=3 on upstream is a viable fallback (5–14% short-context cost, parity long-context).
+
+---
+
+## Memory Usage (VRAM)
+
+- **FP8 on 2× GPUs (TP=2):** ~37 GiB per GPU at 134k max context
+- **BF16 on 2× GPUs (TP=2) with DFlash drafter:** ~73 GiB per GPU
+- `--gpu-memory-utilization 0.85–0.88` typical range (this study used 0.88; raise to 0.91 if you need more KV)
+- Each RTX PRO 6000 Blackwell: **97,887 MiB** total VRAM
+- `--language-model-only` (Repne only) reduces TTFT from 12 s to <1 s on first request by skipping vision encoder load — required since Qwen3.6-27B is text-only on this checkpoint
+
+### Engine state at production config (FP8+MTP=3)
+
+- KV cache: **1,846,472 tokens** (7.04× max concurrency at 256k context)
+- Boot time: **120 s** warm compile cache, **295 s** cold
+- All functional gates: **4/4 pass**
+
+---
+
+## Known Issues and Fixes
+
+### 1. NVFP4 long-context engine failure
+
+**Symptom:** NVFP4+MTP=3 throughput collapses to 1.4 tok/s at c=1×244k on `vllm/vllm-openai:v0.20.1`. Effectively unusable.
+
+**Cause:** Engine-side, not model quality. The community-quantized weights pass all functional gates (Fibonacci 5x, tool-calls, 47×83=3901, 137K-token needle-in-haystack found in 23.3 s on the Repne fork).
+
+**Workaround:** Use FP8 W8A8 instead. NVFP4 is permanently disqualified for production until either the upstream NVFP4 long-context path is fixed or the Repne fork adds W8A8-equivalent NVFP4 optimizations.
+
+[→ Experiment 3](./03-nvfp4-mtp-experiment/), [Experiment 7 Phase D](./07-quality-sprint/)
+
+### 2. `vllm/vllm-openai:v0.19.1` GPU reset crash
+
+**Symptom:** `NV_ERR_GPU_IN_FULLCHIP_RESET` at ctx > 131k with NVFP4 modelopt. Required host reboot.
+
+**Fix:** Upgrade to `vllm/vllm-openai:v0.20.1-cu129-ubuntu2404` or use Repne fork.
+
+### 3. `vllm/vllm-openai:cu130-nightly` pandas import error
+
+**Symptom:** `ModuleNotFoundError: No module named 'pandas'` in `_aiter_ops.py` on container start.
+
+**Fix:** Avoid this image entirely as of May 2026. Use `repne/vllm:v13` or `vllm/vllm-openai:v0.20.1`.
+
+### 4. Scheduler pessimal pocket on Repne morning image
+
+**Symptom:** Default `max-num-seqs=128 + max-num-batched-tokens=32 768` produced a −5.7% c=4 ctx=0 regression on the May 5 morning image vs prior baselines.
+
+**Fix:** Nearly any deviation from the exact default pair recovers throughput. The evening image (`d0a200f77546`) and v13 do not exhibit this. [→ Experiment 2](./02-scheduler-investigation/)
+
+### 5. Tool-call format changes with MTP enabled (upstream)
+
+**Symptom:** On upstream vLLM, model outputs XML tool calls when `tool_choice='required'` and MTP is on; 50–70% of tool calls fail JSON parsing.
+
+**Fix:** Use `tool_choice='auto'` (handles both XML and JSON), or disable thinking mode (`--default-chat-template-kwargs '{"enable_thinking": false}'`). On the Repne fork this is not observed at the same rate; thinking-mode + MTP is the trigger upstream.
+
+### 6. NCCL deadlock with `VLLM_ALLREDUCE_USE_SYMM_MEM=1`
+
+**Symptom:** Hang at startup with GPUs at 100% utilization, ~140 W power, no VRAM growth.
+
+**Fix:** Always set `VLLM_ALLREDUCE_USE_SYMM_MEM=0` on Blackwell PCIe TP=2 (no NVLink). Symmetric-memory allreduce requires NVLink topology.
+
+### 7. PCIe Gen1 reading at idle (not a hardware fault)
+
+**Symptom:** `nvidia-smi` startup snapshot reports `pcie.link.gen.current = 1`.
+
+**Cause:** ASPM (Active State Power Management) downscaling at idle. Verified: PCIe link trains to **Gen5 (32 GT/s) x16** under active GPU compute pressure.
+
+---
+
+## Methodology Archive (experiment index)
+
+This study was a 24-hour development sprint of **eight controlled experiments** (Experiments 1–8), followed by two later experiments (Experiment 9: v13 image kitchen sink; Experiment 10: tool-call parser axis, in progress). Each experiment has its own subdirectory with raw `.json` per-cell results, `bench.log` files with full bench-tool stdout, and a `RESULTS.md` write-up.
+
+| # | Path | Question | Method | Outcome |
+|---|---|---|---|---|
+| 1 | [`01-morning-newimage-validation/`](./01-morning-newimage-validation/) | Does the new Repne May 5 image regress the May 3 baseline? | BF16+DFlash, 5 cells × N=5 randomized = 25 runs | Mixed: −5.7% c=4 ctx=0, +9.0% c=1 ctx=128k. Triggered Exp 2. |
+| 2 | [`02-scheduler-investigation/`](./02-scheduler-investigation/) | What scheduler knobs cause the c=4 ctx=0 regression? | 5 variants × N=3 | Default `max-num-seqs=128 + max-num-batched-tokens=32 768` is in a pessimal pocket; nearly any deviation recovers throughput. |
+| 3 | [`03-nvfp4-mtp-experiment/`](./03-nvfp4-mtp-experiment/) | Can NVFP4 community-quant replace FP8? | 11 cells × N=3 + 4 functional gates | No. Wins short-context, broken at 244k. |
+| 4 | [`04-fp8-mtp3-headtohead/`](./04-fp8-mtp3-headtohead/) | Repne vs upstream on FP8+MTP=3? | 6 cells × N=1 | Repne +5–14% short-context, parity at long-context. |
+| 5 | [`05-bf16-dflash-headtohead/`](./05-bf16-dflash-headtohead/) | Repne vs upstream on BF16+DFlash? | 6 cells × N=1 | Repne +537–626% at long-context (upstream collapses). |
+| 6 | [`06-new-image-validation/`](./06-new-image-validation/) | New Repne image (`d0a200f7`) FP8 vs DFlash variants? | 9 cells × 4 configs × N=3 = 108 runs | FP8+MTP=3 wins all 9 cells. Best DFlash variant: N=7 (but N=8 in v13). |
+| 7 | [`07-quality-sprint/`](./07-quality-sprint/) | Triggered by Phaelon Discord on W8A8 quality. | A: spec losslessness. B: FP8 vs Q8 GGUF. C: MTP n∈{2,3,4,5,6}. D: NVFP4 on Repne. | A: not bitwise-lossless. B: no FP8 quality regression. C: MTP=5 wins at c=1–4 (caveat triggered Exp 8). D: NVFP4 50% worse on Repne. |
+| 8 | [`08-x1y1-sprint/`](./08-x1y1-sprint/) | High-concurrency speed (X1) + perplexity quality (Y1). | X1: c∈{8,16,32} × ctx ∈ {0,32k,131k}. Y1: AesSedai KLD. | **MTP=3 wins +10.5% mean at c≥8.** Q8/BF16 KLD = 0.0018 (noise floor). |
+| 9 | [`09-v13-kitchen-sink/`](./09-v13-kitchen-sink/) | Characterize the new `repne/vllm:v13` image end-to-end. | 5×6 matrix × 2 configs × N=5 = 300 cells + 16 method-validation + 4 quality probes | BF16+DFlash N=8 peak 1,123 tok/s; FP8+MTP=3 peak 2,146 tok/s; tool-calling 93/100 on tool-eval-bench (using `qwen3_xml`). |
+| 10 | `10-parser-axis/` *(pending publication)* | `qwen3_xml` vs `qwen3_coder` parser head-to-head + image axis + frontier yardsticks. | Staged tournament: parser axis on v13+FP8 → image axis on BF16 → FP8 generalization. 7 frontier API endpoints as yardsticks. | TBD |
+
+Companion documents:
+
+- [`SOTA.md`](./SOTA.md) — full SOTA leaderboard, cross-quant comparison, decision tree
+- [`PERFORMANCE_CHART.md`](./PERFORMANCE_CHART.md) — text-mode bar charts of throughput scaling
+- [`master-results.csv`](./master-results.csv) — 328-row machine-readable summary of every cell × run
+
+### Companion standalone repositories
+
+Published as standalone artifacts during the original sprint for fast sharing:
+
+- [`jcartu/repne-dflash-newimage`](https://github.com/jcartu/repne-dflash-newimage) — initial Repne May 5 image validation
+- [`jcartu/qwen36-27b-nvfp4-mtp-experiment`](https://github.com/jcartu/qwen36-27b-nvfp4-mtp-experiment) — NVFP4+MTP write-up
+- [`jcartu/qwen36-27b-fp8-repne-vs-upstream`](https://github.com/jcartu/qwen36-27b-fp8-repne-vs-upstream) — FP8+MTP=3 head-to-head
+- [`jcartu/qwen36-27b-bf16-dflash-repne-vs-upstream`](https://github.com/jcartu/qwen36-27b-bf16-dflash-repne-vs-upstream) — BF16+DFlash head-to-head
+
+This monorepo is the canonical comprehensive record.
+
+---
+
+## Recommendation
+
+**Adopt FP8+MTP=3 on `repne/vllm:v13` as the production configuration** for any Qwen3.6-27B inference deployment on RTX PRO 6000 Blackwell SM120 hardware. Verified at every production-relevant concurrency tier (c=1 through c=32) across short, medium, and long context. Peak aggregate throughput **2,083.7 tok/s at c=32 ctx=0**. Quality verified empirically against BF16 reference logits with KLD = 0.0018 nats (noise floor) on Q8 GGUF, inferred to hold for FP8 W8A8 by Qwen team's own model-card claims plus 8/8 functional-test parity.
+
+If the Repne fork ever stops shipping new images, **upstream `vllm/vllm-openai:v0.20.1` with FP8+MTP=3** is the safest fallback — accept 5–14% short-context throughput cost. **Do not attempt** to recreate the BF16+DFlash performance gap on upstream without forking back `gumbel` and `use_local_argmax_reduction`.
+
+NVFP4 quantization is permanently disqualified by long-context engine instability and Repne-fork incompatibility. DFlash variants don't reach FP8+MTP=3 throughput at any tested concurrency tier. MTP n∈{2,4,5,6} are dominated by n=3 at c≥8.
