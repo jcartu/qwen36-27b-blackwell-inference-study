@@ -1,0 +1,338 @@
+{
+  "ref_label": "C0a-bf16-ref",
+  "cand_label": "C6-autoround-int4",
+  "ref_model": "Qwen/Qwen3.6-27B",
+  "cand_model": "Intel/Qwen3.6-27B-int4-AutoRound",
+  "max_tokens": 1024,
+  "seed": 42,
+  "aggregate": {
+    "n_prompts": 8,
+    "n_identical": 0,
+    "n_divergent": 8,
+    "first_divergence_min": 1,
+    "first_divergence_max": 41,
+    "first_divergence_mean": 17.4,
+    "@64": {
+      "mean_agreement_rate": 0.345703,
+      "mean_edit_distance": 36.12,
+      "exact_match_count": 0,
+      "exact_match_rate": 0.0
+    },
+    "@128": {
+      "mean_agreement_rate": 0.209961,
+      "mean_edit_distance": 80.88,
+      "exact_match_count": 0,
+      "exact_match_rate": 0.0
+    },
+    "@256": {
+      "mean_agreement_rate": 0.120606,
+      "mean_edit_distance": 188.25,
+      "exact_match_count": 0,
+      "exact_match_rate": 0.0
+    },
+    "@512": {
+      "mean_agreement_rate": 0.106445,
+      "mean_edit_distance": 400.12,
+      "exact_match_count": 0,
+      "exact_match_rate": 0.0
+    }
+  },
+  "per_prompt": [
+    {
+      "prompt_idx": 0,
+      "first_divergence_pos": 6,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.140625,
+        "edit_distance": 51,
+        "edit_distance_normalized": 0.796875,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.09375,
+        "edit_distance": 91,
+        "edit_distance_normalized": 0.710938,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.050781,
+        "edit_distance": 194,
+        "edit_distance_normalized": 0.757812,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.310547,
+        "edit_distance": 298,
+        "edit_distance_normalized": 0.582031,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 1,
+      "first_divergence_pos": 8,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.125,
+        "edit_distance": 40,
+        "edit_distance_normalized": 0.625,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.078125,
+        "edit_distance": 95,
+        "edit_distance_normalized": 0.742188,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.050781,
+        "edit_distance": 212,
+        "edit_distance_normalized": 0.828125,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.03125,
+        "edit_distance": 463,
+        "edit_distance_normalized": 0.904297,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 2,
+      "first_divergence_pos": 14,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.21875,
+        "edit_distance": 50,
+        "edit_distance_normalized": 0.78125,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.117188,
+        "edit_distance": 112,
+        "edit_distance_normalized": 0.875,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.085938,
+        "edit_distance": 226,
+        "edit_distance_normalized": 0.882812,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.046875,
+        "edit_distance": 448,
+        "edit_distance_normalized": 0.875,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 3,
+      "first_divergence_pos": 1,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.046875,
+        "edit_distance": 61,
+        "edit_distance_normalized": 0.953125,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.023438,
+        "edit_distance": 125,
+        "edit_distance_normalized": 0.976562,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.011719,
+        "edit_distance": 253,
+        "edit_distance_normalized": 0.988281,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.005859,
+        "edit_distance": 502,
+        "edit_distance_normalized": 0.980469,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 4,
+      "first_divergence_pos": 30,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.9375,
+        "edit_distance": 4,
+        "edit_distance_normalized": 0.0625,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.703125,
+        "edit_distance": 33,
+        "edit_distance_normalized": 0.257812,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.371094,
+        "edit_distance": 156,
+        "edit_distance_normalized": 0.609375,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.1875,
+        "edit_distance": 389,
+        "edit_distance_normalized": 0.759766,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 5,
+      "first_divergence_pos": 15,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.25,
+        "edit_distance": 43,
+        "edit_distance_normalized": 0.671875,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.140625,
+        "edit_distance": 82,
+        "edit_distance_normalized": 0.640625,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.074219,
+        "edit_distance": 182,
+        "edit_distance_normalized": 0.710938,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.064453,
+        "edit_distance": 396,
+        "edit_distance_normalized": 0.773438,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 6,
+      "first_divergence_pos": 24,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.40625,
+        "edit_distance": 25,
+        "edit_distance_normalized": 0.390625,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.203125,
+        "edit_distance": 69,
+        "edit_distance_normalized": 0.539062,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.117188,
+        "edit_distance": 182,
+        "edit_distance_normalized": 0.710938,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.060547,
+        "edit_distance": 427,
+        "edit_distance_normalized": 0.833984,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    },
+    {
+      "prompt_idx": 7,
+      "first_divergence_pos": 41,
+      "identical": false,
+      "@64": {
+        "agreement_rate": 0.640625,
+        "edit_distance": 15,
+        "edit_distance_normalized": 0.234375,
+        "exact_match": 0,
+        "ref_len": 64,
+        "cand_len": 64
+      },
+      "@128": {
+        "agreement_rate": 0.320312,
+        "edit_distance": 40,
+        "edit_distance_normalized": 0.3125,
+        "exact_match": 0,
+        "ref_len": 128,
+        "cand_len": 128
+      },
+      "@256": {
+        "agreement_rate": 0.203125,
+        "edit_distance": 101,
+        "edit_distance_normalized": 0.394531,
+        "exact_match": 0,
+        "ref_len": 256,
+        "cand_len": 256
+      },
+      "@512": {
+        "agreement_rate": 0.144531,
+        "edit_distance": 278,
+        "edit_distance_normalized": 0.542969,
+        "exact_match": 0,
+        "ref_len": 512,
+        "cand_len": 512
+      }
+    }
+  ]
+}

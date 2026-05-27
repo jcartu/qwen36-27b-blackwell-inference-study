@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 340.3231346607208,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "B4-fp8-kv-fp8",
+  "max_tokens": 64,
+  "model": "Qwen/Qwen3.6-27B-FP8",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/addenda/B-kv-cache-isolation/results/B4-fp8-kv-fp8.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}
