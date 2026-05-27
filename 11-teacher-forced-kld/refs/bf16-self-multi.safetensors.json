@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 105.02601838111877,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "bf16-self-multi",
+  "max_tokens": 64,
+  "model": "Qwen/Qwen3.6-27B",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/refs/bf16-self-multi.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}

@@ -1,0 +1,71 @@
+{
+  "a": "/sweep/refs/bf16-ref-multi.safetensors",
+  "b": "/sweep/refs/bf16-self-multi.safetensors",
+  "js_max": 0.681729793548584,
+  "js_mean": 0.002098414581269026,
+  "kl_a_to_b_max": 7.552324295043945,
+  "kl_a_to_b_mean": 0.018667146563529968,
+  "kl_b_to_a_max": 9.508185386657715,
+  "kl_b_to_a_mean": 0.02272985875606537,
+  "num_positions": 504,
+  "num_prompts": 8,
+  "per_prompt": [
+    {
+      "js_mean": 0.00018243447993882,
+      "kl_a_to_b_mean": 0.000730676983948797,
+      "kl_b_to_a_mean": 0.000729563063941896,
+      "num_positions": 63,
+      "prompt_index": 0
+    },
+    {
+      "js_mean": 0.00017910427413880825,
+      "kl_a_to_b_mean": 0.0007170448661781847,
+      "kl_b_to_a_mean": 0.0007164616254158318,
+      "num_positions": 63,
+      "prompt_index": 1
+    },
+    {
+      "js_mean": 0.00025871547404676676,
+      "kl_a_to_b_mean": 0.0010352161480113864,
+      "kl_b_to_a_mean": 0.0010393722914159298,
+      "num_positions": 63,
+      "prompt_index": 2
+    },
+    {
+      "js_mean": 0.015454495325684547,
+      "kl_a_to_b_mean": 0.14399470388889313,
+      "kl_b_to_a_mean": 0.17650368809700012,
+      "num_positions": 63,
+      "prompt_index": 3
+    },
+    {
+      "js_mean": 8.751869609113783e-05,
+      "kl_a_to_b_mean": 0.00035495584597811103,
+      "kl_b_to_a_mean": 0.0003477117570582777,
+      "num_positions": 63,
+      "prompt_index": 4
+    },
+    {
+      "js_mean": 0.000332744704792276,
+      "kl_a_to_b_mean": 0.0013365634949877858,
+      "kl_b_to_a_mean": 0.0013304189778864384,
+      "num_positions": 63,
+      "prompt_index": 5
+    },
+    {
+      "js_mean": 0.00011492214252939448,
+      "kl_a_to_b_mean": 0.00046077914885245264,
+      "kl_b_to_a_mean": 0.0004590786120388657,
+      "num_positions": 63,
+      "prompt_index": 6
+    },
+    {
+      "js_mean": 0.00017738154565449804,
+      "kl_a_to_b_mean": 0.0007072238950058818,
+      "kl_b_to_a_mean": 0.000712613807991147,
+      "num_positions": 63,
+      "prompt_index": 7
+    }
+  ],
+  "skip_prefill_next": 1
+}

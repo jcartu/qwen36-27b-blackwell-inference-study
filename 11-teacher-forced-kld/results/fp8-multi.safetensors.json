@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 110.3813636302948,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "fp8-multi",
+  "max_tokens": 64,
+  "model": "Qwen/Qwen3.6-27B-FP8",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/results/fp8-multi.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}

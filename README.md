@@ -49,7 +49,7 @@ Three Qwen3.6-27B checkpoints are validated on 2× RTX PRO 6000:
 
 | Checkpoint | Quant | Quality | Speed (c=1) | Best for |
 |---|---|---|---|---|
-| `Qwen/Qwen3.6-27B-FP8` | FP8 W8A8 (block-128) | KLD ≈ 0.0018 nats (inferred from Q8 GGUF) | **117 tok/s** (MTP=3) | **Production** — fastest aggregate throughput |
+| `Qwen/Qwen3.6-27B-FP8` | FP8 W8A8 (block-128) | mean KL 5.5e-3 bits vs BF16 (7.3× noise floor; Exp 11) | **117 tok/s** (MTP=3) | **Production** — fastest aggregate throughput |
 | `Qwen/Qwen3.6-27B` | BF16 | reference | 91 tok/s (DFlash N=8) | Lossless quality with DFlash speculative decoding |
 | `z-lab/Qwen3.6-27B-DFlash` | BF16 drafter | n/a | (drafter only) | Required by BF16+DFlash configuration |
 
@@ -135,7 +135,7 @@ This study characterizes Qwen3.6-27B inference on the dual-GPU **RTX PRO 6000 Bl
 
 | Checkpoint | Quantization | KV Cache | Notes |
 |---|---|---|---|
-| **`Qwen/Qwen3.6-27B-FP8`** | **FP8 W8A8 block-128** | FP8 | **Recommended.** Official Qwen. Empirically indistinguishable from BF16 (inferred KLD ≈ 0.0018 nats). 2× GPUs TP=2. |
+| **`Qwen/Qwen3.6-27B-FP8`** | **FP8 W8A8 block-128** | FP8 | **Recommended.** Official Qwen. Teacher-forced KLD vs BF16: **mean KL 5.5e-3 bits/pos** (single-prompt; 7.3× BF16 noise floor), **5.52e-3 bits** single / **0.230 bits** multi (Exp 11). 2× GPUs TP=2. |
 | `Qwen/Qwen3.6-27B` | BF16 | BF16 | Lossless reference. Required for BF16+DFlash. 2× GPUs TP=2. |
 | `z-lab/Qwen3.6-27B-DFlash` | BF16 drafter | — | Speculative draft model for BF16+DFlash. Loaded alongside main BF16 model. |
 | `sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP` | NVFP4 (modelopt) | FP8 | Community quant. 15 mtp.* tensors graft cleanly, functional gates pass. **Broken at 244K context.** Repne fork makes it 50% worse. Not production-viable. |
@@ -370,7 +370,7 @@ DFlash is Repne's speculative-decoding scheme using a separate small drafter mod
 - Block-128 W8A8 (weights and activations both FP8 e4m3, blocks of 128)
 - FP8 KV cache with calibrated scales
 - ~37 GiB per GPU at 134k max context (TP=2)
-- **Quality:** inferred KLD vs BF16 ≈ 0.0018 nats (noise floor), from Q8 GGUF probe + Qwen team's own model-card claim of "performance metrics nearly identical to original"
+- **Quality:** teacher-forced KLD vs BF16 = **5.5e-3 bits/pos** single-prompt (7.3× BF16 noise floor of 7.6e-4 bits/pos); **0.230 bits/pos** multi-prompt (8.6× noise floor). See [Experiment 11](./11-teacher-forced-kld/). Q8 GGUF proxy was 0.0018 nats ≈ 0.0026 bits — a lower bound; the real FP8 vLLM number is ~2× higher in single-prompt mode.
 - 8/8 functional gates pass (Fibonacci 5x deterministic, tool-calling, multi-turn coherence, 47×83=3901 arithmetic)
 
 ### BF16
@@ -554,7 +554,7 @@ FP8+MTP=3 on upstream is a viable fallback (5–14% short-context cost, parity l
 
 ## Methodology Archive (experiment index)
 
-This study was a 24-hour development sprint of **eight controlled experiments** (Experiments 1–8), followed by two later experiments (Experiment 9: v13 image kitchen sink; Experiment 10: tool-call parser axis, in progress). Each experiment has its own subdirectory with raw `.json` per-cell results, `bench.log` files with full bench-tool stdout, and a `RESULTS.md` write-up.
+This study was a 24-hour development sprint of **eight controlled experiments** (Experiments 1–8), followed by three later experiments (Experiment 9: v13 image kitchen sink; Experiment 10: tool-call parser axis; Experiment 11: teacher-forced decode KLD/JSD). Each experiment has its own subdirectory with raw `.json` per-cell results, `bench.log` files with full bench-tool stdout, and a `RESULTS.md` write-up.
 
 | # | Path | Question | Method | Outcome |
 |---|---|---|---|---|
@@ -568,6 +568,7 @@ This study was a 24-hour development sprint of **eight controlled experiments** 
 | 8 | [`08-x1y1-sprint/`](./08-x1y1-sprint/) | High-concurrency speed (X1) + perplexity quality (Y1). | X1: c∈{8,16,32} × ctx ∈ {0,32k,131k}. Y1: AesSedai KLD. | **MTP=3 wins +10.5% mean at c≥8.** Q8/BF16 KLD = 0.0018 (noise floor). |
 | 9 | [`09-v13-kitchen-sink/`](./09-v13-kitchen-sink/) | Characterize the new `repne/vllm:v13` image end-to-end. | 5×6 matrix × 2 configs × N=5 = 300 cells + 16 method-validation + 4 quality probes | BF16+DFlash N=8 peak 1,123 tok/s; FP8+MTP=3 peak 2,146 tok/s; tool-calling **93/100 on the 15-scenario `--short` subset** of tool-eval-bench (using `qwen3_xml`). Experiment 10 measures the same config on the **full 69-scenario suite** and scores 62/100 — the two numbers are not comparable (different scoring denominators / different scenario distributions). |
 | 10 | [`10-parser-axis/`](./10-parser-axis/) | `qwen3_xml` vs `qwen3_coder` parser head-to-head + image axis + frontier yardsticks. | Staged tournament: parser axis on v13+FP8 → image axis on BF16 → FP8 generalization. 7 frontier API endpoints as yardsticks. | Parser axis: **tie** (both 62/100). BF16 image axis: **v13 uncontested** (nightly does not register `DFlashDraftModel`). FP8 image axis: **v13 wins +14 points** over nightly. Frontier yardsticks: Claude Sonnet 4.6 = 86, Gemini 3.5 Flash = 86, GPT-5.5 = 83, Claude Haiku 4.5 = 82, Qwen-235B (Cerebras) = 81, GPT-5-mini = 72; GPT-5-nano timed out. Local Qwen3.6-27B at 62 sits ~27% behind frontier on quality but faster than every API except Cerebras Qwen-235B. |
+| 11 | [`11-teacher-forced-kld/`](./11-teacher-forced-kld/) | How closely do FP8 and NVFP4 match BF16 at every decoded position (teacher-forced decode KLD/JSD)? | 8 cells (BF16-ref × 2 + BF16-self noise floor × 2 + FP8 × 2 + NVFP4 × 2) on WikiText-2-raw-v1 via GLM-5.1 methodology. TP=2, GPUs 1+2. | **FP8: 7.3× noise floor** (mean KL 5.5e-3 bits, single-prompt). **NVFP4: 395× noise floor** (mean KL 2.99e-1 bits). FP8-MTP=3 hard-skipped: vLLM V1 rejects custom logits processors with spec decode (`ValueError`; see `SKIP_REASON.md`). |
 
 Companion documents:
 
@@ -590,7 +591,7 @@ This monorepo is the canonical comprehensive record.
 
 ## Recommendation
 
-**Adopt FP8+MTP=3 on `repne/vllm:v13` as the production configuration** for any Qwen3.6-27B inference deployment on RTX PRO 6000 Blackwell SM120 hardware. Verified at every production-relevant concurrency tier (c=1 through c=32) across short, medium, and long context. Peak aggregate throughput **2,083.7 tok/s at c=32 ctx=0**. Quality verified empirically against BF16 reference logits with KLD = 0.0018 nats (noise floor) on Q8 GGUF, inferred to hold for FP8 W8A8 by Qwen team's own model-card claims plus 8/8 functional-test parity.
+**Adopt FP8+MTP=3 on `repne/vllm:v13` as the production configuration** for any Qwen3.6-27B inference deployment on RTX PRO 6000 Blackwell SM120 hardware. Verified at every production-relevant concurrency tier (c=1 through c=32) across short, medium, and long context. Peak aggregate throughput **2,083.7 tok/s at c=32 ctx=0**. Quality now directly measured via teacher-forced decode KLD (Exp 11): FP8 mean KL = **5.5e-3 bits/pos** (single-prompt), 7.3× the BF16 self-noise floor. NVFP4 is 395× the noise floor and disqualified. 8/8 functional gates pass for FP8.
 
 If the Repne fork ever stops shipping new images, **upstream `vllm/vllm-openai:v0.20.1` with FP8+MTP=3** is the safest fallback — accept 5–14% short-context throughput cost. **Do not attempt** to recreate the BF16+DFlash performance gap on upstream without forking back `gumbel` and `use_local_argmax_reduction`.
 

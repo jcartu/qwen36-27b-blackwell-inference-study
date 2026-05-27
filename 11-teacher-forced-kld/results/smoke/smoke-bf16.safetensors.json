@@ -1,0 +1,27 @@
+{
+  "elapsed_sec": 207.099591255188,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null,
+    "VLLM_B12X_MOE_DECODE_A16": null
+  },
+  "generated_token_ids": [
+    5388,
+    13,
+    1061,
+    31686
+  ],
+  "label": "smoke-bf16",
+  "max_tokens": 4,
+  "model": "Qwen/Qwen3.6-27B",
+  "num_logprob_positions": 4,
+  "output": "/sweep/results/smoke/smoke-bf16.safetensors",
+  "prompt_len": 128,
+  "teacher_force_token_ids": [
+    5388,
+    13,
+    1061,
+    31686
+  ],
+  "vocab_size": 248320
+}

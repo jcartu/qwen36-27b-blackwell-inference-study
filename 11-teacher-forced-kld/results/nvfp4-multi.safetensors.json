@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 227.95370030403137,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "nvfp4-multi",
+  "max_tokens": 64,
+  "model": "sakamakismile/Qwen3.6-27B-Text-NVFP4-MTP",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/results/nvfp4-multi.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}
