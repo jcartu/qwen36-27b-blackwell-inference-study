@@ -1,0 +1,69 @@
+[14:58:56] ===================== Exp 10 begin =====================
+[14:58:56] ──── Launching 7 frontier yardsticks in background ────
+[14:58:56] Frontier background PID: 2366579
+[14:58:56] BENCH Y1-claude-sonnet-4.6 (openrouter, anthropic/claude-sonnet-4.6, 69 scenarios)
+[14:58:56] 
+[14:58:56] ════════════════════════ STAGE 1: parser axis (v13+FP8+MTP=3) ════════════════════════
+[14:58:56] LAUNCH S1-v13-fp8-xml (image=repne/vllm:v13 quant=fp8 spec=mtp/N3 parser=qwen3_xml)
+[15:05:19] BENCH S1-v13-fp8-xml (69 scenarios, ~3-4 min)
+[15:09:51] DONE  S1-v13-fp8-xml (272s, final_score=62)
+[15:09:51] LAUNCH S1-v13-fp8-coder (image=repne/vllm:v13 quant=fp8 spec=mtp/N3 parser=qwen3_coder)
+[15:12:08] BENCH S1-v13-fp8-coder (69 scenarios, ~3-4 min)
+[15:13:29] DONE  Y1-claude-sonnet-4.6 (873s, final_score=86)
+[15:13:29] BENCH Y2-claude-haiku-4.5 (openrouter, anthropic/claude-haiku-4.5, 69 scenarios)
+[15:16:19] DONE  S1-v13-fp8-coder (251s, final_score=62)
+[15:16:19] 
+[15:16:19] ★★★ STAGE 1 WINNER: qwen3_coder ★★★
+[15:16:19] 
+[15:16:19] ════════════════════════ STAGE 2: image axis (BF16+DFlash, parser=qwen3_coder) ════════════════════════
+[15:16:19] LAUNCH S2-v13-bf16-qwen3_coder (image=repne/vllm:v13 quant=bf16 spec=dflash/N8 parser=qwen3_coder)
+[15:16:36] FAIL  S2-v13-bf16-qwen3_coder container boot failed; see /home/josh/qwen-vllm-test/sweeps/10-parser-axis/logs/launch-S2-v13-bf16-qwen3_coder.log
+[15:16:36] LAUNCH S2-nightly-bf16-qwen3_coder (image=vllm/vllm-openai:nightly quant=bf16 spec=dflash/N8 parser=qwen3_coder)
+[15:16:51] FAIL  S2-nightly-bf16-qwen3_coder container boot failed; see /home/josh/qwen-vllm-test/sweeps/10-parser-axis/logs/launch-S2-nightly-bf16-qwen3_coder.log
+[15:16:51] 
+[15:16:51] ★★★ STAGE 2 BF16 IMAGE WINNER (by efficiency):  ★★★
+[15:16:51] 
+[15:16:51] ════════════════════════ STAGE 3: FP8 image generalization (nightly+FP8+MTP=3+qwen3_coder) ════════════════════════
+[15:16:51] LAUNCH S3-nightly-fp8-qwen3_coder (image=vllm/vllm-openai:nightly quant=fp8 spec=mtp/N3 parser=qwen3_coder)
+[15:18:43] BENCH S3-nightly-fp8-qwen3_coder (69 scenarios, ~3-4 min)
+[15:23:28] DONE  Y2-claude-haiku-4.5 (599s, final_score=82)
+[15:23:28] BENCH Y3-gpt-5.5 (openrouter, openai/gpt-5.5, 69 scenarios)
+[15:25:02] DONE  S3-nightly-fp8-qwen3_coder (379s, final_score=48)
+[15:25:02] 
+[15:25:02] ★★★ STAGE 3 FP8 IMAGE WINNER (by efficiency): repne/vllm:v13 ★★★
+[15:25:02] 
+[15:25:02] ════════════════════════ WAITING FOR FRONTIER YARDSTICKS ════════════════════════
+[15:25:02] Waiting on frontier PID 2366579...
+[15:34:26] [inline] ===== Parallel Stage 2 BF16+DFlash inline rerun begin =====
+[15:34:26] [inline] Live frontier yardsticks continue on PID 2366579
+[15:34:26] [inline] 
+[15:34:26] [inline] LAUNCH S2-v13-bf16-qwen3_coder (image=repne/vllm:v13 quant=bf16 spec=dflash/N8 parser=qwen3_coder)
+[15:34:42] DONE  Y3-gpt-5.5 (674s, final_score=83)
+[15:34:42] BENCH Y4-gpt-5-mini (openrouter, openai/gpt-5-mini, 69 scenarios)
+[15:39:24] [inline] BENCH S2-v13-bf16-qwen3_coder (69 scenarios, ~3-5 min)
+[15:41:53] [inline] DONE  S2-v13-bf16-qwen3_coder (149s, final_score=62)
+[15:41:54] [inline] LAUNCH S2-nightly-bf16-qwen3_coder (image=vllm/vllm-openai:nightly quant=bf16 spec=dflash/N8 parser=qwen3_coder)
+[15:43:05] [inline] FAIL  S2-nightly-bf16-qwen3_coder container boot failed; see /home/josh/qwen-vllm-test/sweeps/10-parser-axis/logs/launch-S2-nightly-bf16-qwen3_coder.log
+Could not compute winner: [Errno 2] No such file or directory: '/home/josh/qwen-vllm-test/sweeps/10-parser-axis/results/stage2/S2-nightly-bf16-qwen3_coder/teb-results.json'
+[15:43:05] [inline] ===== Parallel Stage 2 BF16+DFlash inline rerun end =====
+[15:55:32] DONE  Y4-gpt-5-mini (1249s, final_score=72)
+[15:55:32] BENCH Y5-gpt-5-nano (openrouter, openai/gpt-5-nano, 69 scenarios)
+[16:09:00] [inline] STAGE 2 INVESTIGATION: vllm/vllm-openai:nightly does NOT support DFlash
+[16:09:00] [inline]   - dflash/draft archs in nightly: ['LongcatFlashForCausalLM', 'MiMoV2FlashForCausalLM']
+[16:09:00] [inline]   - DFlashDraftModel architecture is Repne-fork-exclusive
+[16:09:00] [inline]   - Stage 2 BF16 image axis is uncontested → repne/vllm:v13 wins by default
+[16:09:00] [inline]   - See results/stage2/S2-nightly-bf16-qwen3_coder/SKIP_REASON.md
+[16:25:32] FAIL  Y5-gpt-5-nano rc=124; see /home/josh/qwen-vllm-test/sweeps/10-parser-axis/results/frontier/Y5-gpt-5-nano/console.log
+[16:25:32] BENCH Y6-gemini-3.5-flash (openrouter, google/gemini-3.5-flash, 69 scenarios)
+[16:35:50] DONE  Y6-gemini-3.5-flash (618s, final_score=86)
+[16:35:50] BENCH Y7-qwen-235b-cerebras (cerebras, qwen-3-235b-a22b-instruct-2507, 69 scenarios)
+[16:37:00] DONE  Y7-qwen-235b-cerebras (70s, final_score=81)
+[16:37:00] ──── Frontier yardsticks complete ────
+[16:37:00] 
+[16:37:00] ═════════════════════════ Exp 10 done in 5884s (98.0 min) ═════════════════════════
+[16:37:00]   Stage 1 winner: qwen3_coder
+[16:37:00]   Stage 2 BF16 image winner: 
+[16:37:00]   Stage 3 FP8 image winner: repne/vllm:v13
+[16:37:00]   Frontier yardsticks: 7 cells
+[16:37:00]   Results: /home/josh/qwen-vllm-test/sweeps/10-parser-axis/results
+[16:37:00]   Logs:    /home/josh/qwen-vllm-test/sweeps/10-parser-axis/logs

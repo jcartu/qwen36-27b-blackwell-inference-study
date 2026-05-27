@@ -1,0 +1,7 @@
+# Exp 10 — Staged parser/image tournament (v13 + Qwen3.6-27B)
+# stage|id|image|quant|spec_method|spec_tokens|tool_parser|reasoning_parser|model|notes
+1|S1-v13-fp8-xml|repne/vllm:v13|fp8|mtp|3|qwen3_xml|qwen3|Qwen/Qwen3.6-27B-FP8|Stage 1: parser axis baseline (= Exp 09 stack)
+1|S1-v13-fp8-coder|repne/vllm:v13|fp8|mtp|3|qwen3_coder|qwen3|Qwen/Qwen3.6-27B-FP8|Stage 1: parser swap (= Exp 01-08 parser)
+2|S2-v13-bf16-WINNER|repne/vllm:v13|bf16|dflash|8|__P_STAR__|qwen3|Qwen/Qwen3.6-27B|Stage 2: BF16 on v13 with Stage 1 winning parser
+2|S2-nightly-bf16-WINNER|vllm/vllm-openai:nightly|bf16|dflash|8|__P_STAR__|qwen3|Qwen/Qwen3.6-27B|Stage 2: BF16 on nightly with Stage 1 winning parser
+3|S3-nightly-fp8-WINNER|vllm/vllm-openai:nightly|fp8|mtp|3|__P_STAR__|qwen3|Qwen/Qwen3.6-27B-FP8|Stage 3: FP8 generalization on nightly with winning parser
