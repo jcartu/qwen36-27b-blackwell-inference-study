@@ -27,8 +27,10 @@ Exp 06 used N=3 and we saw 5-8% intra-cell variance at high concurrency. We went
 
 ### Hardware
 
-- 2× B200 (`repne/vllm:v13` defaults, TP=2)
+- 3× NVIDIA RTX PRO 6000 Blackwell Workstation Edition (SM120), 96 GiB GDDR7 each, PCIe Gen5 x16
 - GPU 0 (`538bf008`) reserved for display; baseline 3273 MiB, hardline halt if >4000 MiB
+- GPU 1 + GPU 2 participate in workload via `--tensor-parallel-size 2` (TP=2)
+- Driver 595.71.05, CUDA 13.2
 - 251 GB system RAM, x86_64
 
 ### Settings shared by both passes
