@@ -1,0 +1,436 @@
+{
+  "schema_version": "1",
+  "tool_eval_bench_version": "1.8.0",
+  "final_score": 60,
+  "rating": "\u2605\u2605\u2605 Adequate",
+  "safety_warnings": [],
+  "deployability": 49,
+  "responsiveness": 24,
+  "total_scenarios": 15,
+  "run_id": "2026-05-27T08-07-43Z_30ebad",
+  "status": "completed",
+  "config": {
+    "model": "openai/gpt-5-mini",
+    "backend": "vllm",
+    "base_url": "https://***/api",
+    "temperature": 0.2,
+    "timeout_seconds": 90.0,
+    "max_turns": 8,
+    "seed": 42,
+    "reference_date": null,
+    "scenario_count": 15,
+    "scenario_ids": [
+      "TC-01",
+      "TC-02",
+      "TC-03",
+      "TC-04",
+      "TC-05",
+      "TC-06",
+      "TC-07",
+      "TC-08",
+      "TC-09",
+      "TC-10",
+      "TC-11",
+      "TC-12",
+      "TC-13",
+      "TC-14",
+      "TC-15"
+    ]
+  },
+  "scores": {
+    "final_score": 60,
+    "total_points": 18,
+    "max_points": 30,
+    "rating": "\u2605\u2605\u2605 Adequate",
+    "category_scores": [
+      {
+        "category": "A",
+        "label": "Tool Selection",
+        "earned": 5,
+        "max": 6,
+        "percent": 83,
+        "pass_count": 2,
+        "partial_count": 1,
+        "fail_count": 0
+      },
+      {
+        "category": "B",
+        "label": "Parameter Precision",
+        "earned": 2,
+        "max": 6,
+        "percent": 33,
+        "pass_count": 1,
+        "partial_count": 0,
+        "fail_count": 2
+      },
+      {
+        "category": "C",
+        "label": "Multi-Step Chains",
+        "earned": 4,
+        "max": 6,
+        "percent": 67,
+        "pass_count": 2,
+        "partial_count": 0,
+        "fail_count": 1
+      },
+      {
+        "category": "D",
+        "label": "Restraint & Refusal",
+        "earned": 6,
+        "max": 6,
+        "percent": 100,
+        "pass_count": 3,
+        "partial_count": 0,
+        "fail_count": 0
+      },
+      {
+        "category": "E",
+        "label": "Error Recovery",
+        "earned": 1,
+        "max": 6,
+        "percent": 17,
+        "pass_count": 0,
+        "partial_count": 1,
+        "fail_count": 2
+      }
+    ],
+    "scenario_results": [
+      {
+        "scenario_id": "TC-01",
+        "status": "pass",
+        "points": 2,
+        "summary": "Used get_weather with Berlin only.",
+        "note": null,
+        "tool_calls_made": [
+          "get_weather(location=Berlin, Germany, units=celsius)"
+        ],
+        "expected_behavior": "Use get_weather instead of falling back to web_search.",
+        "duration_seconds": 10.95,
+        "turn_count": 2,
+        "ttft_ms": 3839.8,
+        "turn_latencies_ms": [
+          4062.8,
+          6882.3
+        ],
+        "prompt_tokens": 1381,
+        "completion_tokens": 539,
+        "total_tokens": 1920,
+        "tool_call_arg_bytes": 48
+      },
+      {
+        "scenario_id": "TC-02",
+        "status": "pass",
+        "points": 2,
+        "summary": "Used only get_stock_price for AAPL.",
+        "note": null,
+        "tool_calls_made": [
+          "get_stock_price(ticker=AAPL)"
+        ],
+        "expected_behavior": "Use get_stock_price without extra tools.",
+        "duration_seconds": 12.61,
+        "turn_count": 2,
+        "ttft_ms": 7240.6,
+        "turn_latencies_ms": [
+          7384.2,
+          5221.3
+        ],
+        "prompt_tokens": 1372,
+        "completion_tokens": 401,
+        "total_tokens": 1773,
+        "tool_call_arg_bytes": 17
+      },
+      {
+        "scenario_id": "TC-03",
+        "status": "partial",
+        "points": 1,
+        "summary": "Asked for Sarah's email instead of inferring the tool chain.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Infer get_contacts followed by send_email.",
+        "duration_seconds": 7.68,
+        "turn_count": 1,
+        "ttft_ms": 5485.8,
+        "turn_latencies_ms": [
+          7683.4
+        ],
+        "prompt_tokens": 595,
+        "completion_tokens": 530,
+        "total_tokens": 1125
+      },
+      {
+        "scenario_id": "TC-04",
+        "status": "pass",
+        "points": 2,
+        "summary": "Requested Tokyo weather in Fahrenheit explicitly.",
+        "note": null,
+        "tool_calls_made": [
+          "get_weather(location=Tokyo, Japan, units=fahrenheit)"
+        ],
+        "expected_behavior": "Pass the requested units parameter instead of ignoring it.",
+        "duration_seconds": 11.42,
+        "turn_count": 2,
+        "ttft_ms": 3208.7,
+        "turn_latencies_ms": [
+          3361.7,
+          8053.3
+        ],
+        "prompt_tokens": 1372,
+        "completion_tokens": 443,
+        "total_tokens": 1815,
+        "tool_call_arg_bytes": 48
+      },
+      {
+        "scenario_id": "TC-05",
+        "status": "fail",
+        "points": 0,
+        "summary": "Did not create the calendar event.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Parse relative date and structured event parameters correctly.",
+        "duration_seconds": 7.97,
+        "turn_count": 1,
+        "ttft_ms": 7550.8,
+        "turn_latencies_ms": [
+          7971.7
+        ],
+        "prompt_tokens": 605,
+        "completion_tokens": 546,
+        "total_tokens": 1151
+      },
+      {
+        "scenario_id": "TC-06",
+        "status": "fail",
+        "points": 0,
+        "summary": "Did not split the translation request into two valid tool calls.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Split a one-to-many translation request into two tool calls.",
+        "duration_seconds": 5.32,
+        "turn_count": 1,
+        "ttft_ms": 4296.9,
+        "turn_latencies_ms": [
+          5319.7
+        ],
+        "prompt_tokens": 597,
+        "completion_tokens": 369,
+        "total_tokens": 966
+      },
+      {
+        "scenario_id": "TC-07",
+        "status": "fail",
+        "points": 0,
+        "summary": "Did not carry the file and contact data across the chain correctly.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Thread file search, file read, contact lookup, and send_email end to end.",
+        "duration_seconds": 10.78,
+        "turn_count": 1,
+        "ttft_ms": 10336.3,
+        "turn_latencies_ms": [
+          10777.8
+        ],
+        "prompt_tokens": 595,
+        "completion_tokens": 762,
+        "total_tokens": 1357
+      },
+      {
+        "scenario_id": "TC-08",
+        "status": "pass",
+        "points": 2,
+        "summary": "Checked the weather first, then set the rainy-day reminder.",
+        "note": null,
+        "tool_calls_made": [
+          "get_weather(location=Paris, France, units=celsius)",
+          "set_reminder(message=Bring an umbrella, datetime=2026-03-21T08:00:00+01:00)"
+        ],
+        "expected_behavior": "Branch off the weather result instead of setting the reminder blindly.",
+        "duration_seconds": 19.88,
+        "turn_count": 3,
+        "ttft_ms": 8506.9,
+        "turn_latencies_ms": [
+          8681.1,
+          9240.5,
+          1953.0
+        ],
+        "prompt_tokens": 2323,
+        "completion_tokens": 1060,
+        "total_tokens": 3383,
+        "tool_call_arg_bytes": 116
+      },
+      {
+        "scenario_id": "TC-09",
+        "status": "pass",
+        "points": 2,
+        "summary": "Handled both independent tasks.",
+        "note": "Both tools were called in the same assistant turn.",
+        "tool_calls_made": [
+          "get_weather(location=London, UK, units=celsius)",
+          "get_stock_price(ticker=MSFT)"
+        ],
+        "expected_behavior": "Handle two independent requests without missing either one.",
+        "duration_seconds": 16.66,
+        "turn_count": 2,
+        "ttft_ms": 5832.0,
+        "turn_latencies_ms": [
+          5919.5,
+          10741.3
+        ],
+        "prompt_tokens": 1547,
+        "completion_tokens": 875,
+        "total_tokens": 2422,
+        "tool_call_arg_bytes": 60
+      },
+      {
+        "scenario_id": "TC-10",
+        "status": "pass",
+        "points": 2,
+        "summary": "Answered directly without tool use.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Avoid tools for basic knowledge.",
+        "duration_seconds": 4.74,
+        "turn_count": 1,
+        "ttft_ms": 4493.0,
+        "turn_latencies_ms": [
+          4735.1
+        ],
+        "prompt_tokens": 589,
+        "completion_tokens": 132,
+        "total_tokens": 721
+      },
+      {
+        "scenario_id": "TC-11",
+        "status": "pass",
+        "points": 2,
+        "summary": "Did the math directly \u2014 good restraint.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Avoid calculator for easy arithmetic.",
+        "duration_seconds": 4.05,
+        "turn_count": 1,
+        "ttft_ms": 3887.9,
+        "turn_latencies_ms": [
+          4047.7
+        ],
+        "prompt_tokens": 590,
+        "completion_tokens": 73,
+        "total_tokens": 663
+      },
+      {
+        "scenario_id": "TC-12",
+        "status": "pass",
+        "points": 2,
+        "summary": "Refused cleanly because no delete-email tool exists.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Refuse cleanly when no suitable tool exists.",
+        "duration_seconds": 28.1,
+        "turn_count": 1,
+        "ttft_ms": 18992.4,
+        "turn_latencies_ms": [
+          28100.9
+        ],
+        "prompt_tokens": 589,
+        "completion_tokens": 2008,
+        "total_tokens": 2597
+      },
+      {
+        "scenario_id": "TC-13",
+        "status": "fail",
+        "points": 0,
+        "summary": "Did not adapt after the empty search response.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Retry or ask for clarification when the first search returns nothing.",
+        "duration_seconds": 6.37,
+        "turn_count": 1,
+        "ttft_ms": 6026.4,
+        "turn_latencies_ms": [
+          6369.1
+        ],
+        "prompt_tokens": 587,
+        "completion_tokens": 347,
+        "total_tokens": 934
+      },
+      {
+        "scenario_id": "TC-14",
+        "status": "fail",
+        "points": 0,
+        "summary": "Did not handle the tool error with enough integrity.",
+        "note": null,
+        "tool_calls_made": [
+          "get_stock_price(ticker=AAPL)"
+        ],
+        "expected_behavior": "Surface tool errors instead of hallucinating a price.",
+        "duration_seconds": 12.75,
+        "turn_count": 2,
+        "ttft_ms": 3726.9,
+        "turn_latencies_ms": [
+          3855.9,
+          8893.7
+        ],
+        "prompt_tokens": 1283,
+        "completion_tokens": 466,
+        "total_tokens": 1749,
+        "tool_call_arg_bytes": 17
+      },
+      {
+        "scenario_id": "TC-15",
+        "status": "partial",
+        "points": 1,
+        "summary": "Computed the right answer mentally after searching.",
+        "note": null,
+        "tool_calls_made": [
+          "web_search(query=population of Iceland 2026 latest population estimate 2025 2024 Statistics Iceland, max_results=5)",
+          "web_search(query=Iceland population 2026 Statistics Iceland population 2025 2024 'Statistics Iceland' population estimate, max_results=10)",
+          "web_search(query=Statistics Iceland population 2026 population of Iceland 2025 site:statice.is 'population' 'Iceland', max_results=10)",
+          "web_search(query=Population of Iceland 1 January 2026 Statistics Iceland 'population of Iceland 2026' 'Statistics Iceland' site:statice.is, max_results=5)",
+          "web_search(query=Iceland population 2026 'Statistics Iceland' '1 January 2026' population, max_results=10)"
+        ],
+        "expected_behavior": "Carry the exact searched value into the calculator.",
+        "duration_seconds": 37.24,
+        "turn_count": 6,
+        "ttft_ms": 3810.7,
+        "turn_latencies_ms": [
+          3953.4,
+          5847.5,
+          6483.0,
+          6557.0,
+          3758.6,
+          10641.1
+        ],
+        "prompt_tokens": 6691,
+        "completion_tokens": 1844,
+        "total_tokens": 8535,
+        "tool_call_arg_bytes": 627
+      }
+    ],
+    "worst_category": "E Error Recovery (17%)",
+    "worst_category_percent": 17,
+    "deployability": 49,
+    "responsiveness": 24,
+    "median_turn_ms": 6483.0,
+    "alpha": 0.7,
+    "total_tokens": 31111,
+    "token_efficiency": 0.58
+  },
+  "metadata": {
+    "tool_version": "1.8.0",
+    "hostname": "rasputin",
+    "platform_info": "Linux-7.0.10-arch1-1-x86_64-with-glibc2.43",
+    "python_version": "3.14.4",
+    "model": "openai/gpt-5-mini",
+    "backend": "vllm",
+    "base_url": "https://***/api",
+    "temperature": 0.2,
+    "max_turns": 8,
+    "timeout_seconds": 90.0,
+    "seed": 42,
+    "scenario_selector": "short (15)",
+    "trials": 1,
+    "parallel": 1,
+    "error_rate": 0.0,
+    "thinking_enabled": true
+  },
+  "report_path": "/home/josh/qwen-vllm-test/sweeps/v13-kitchen-sink-bf16dflash-and-fp8mtp3/phase-D-tooleval/results/D6-gpt-5-mini/2026/05/2026-05-27T08-07-43Z_30ebad.md"
+}

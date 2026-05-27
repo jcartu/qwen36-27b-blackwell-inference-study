@@ -1,0 +1,536 @@
+[2026-05-27 02:55:07] ====================================================
+[2026-05-27 02:55:07] v13 KITCHEN-SINK DUAL-CONFIG SWEEP — DRIVER START
+[2026-05-27 02:55:07] PID: 370894
+[2026-05-27 02:55:07] ====================================================
+[2026-05-27 02:55:07] Starting CJK watchdog (bf16)...
+[2026-05-27 02:55:07]   CJK watchdog pid=370926
+[2026-05-27 02:55:07] === PHASE A1: BF16+DFlash methodology validation ===
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  104s
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[2026-05-27 02:57:02] NOTE: CJK watchdog will run at end of each pass instead of continuously to avoid bench contention
+[DONE] c1-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  96s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  102s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  103s
+[2026-05-27 03:08:25] Phase A1 complete
+[2026-05-27 03:08:25] === PHASE A2: P2P fabric diagnostic ===
+[2026-05-27 03:08:27] Phase A2 complete
+[2026-05-27 03:08:27] === PHASE A3: BF16+DFlash full matrix N=5 ===
+[2026-05-27 03:08:27] --- Rep 1 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  97s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  97s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  97s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  97s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  99s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  98s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  99s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  101s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  101s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  104s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  105s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  104s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  105s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  106s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  109s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  116s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  118s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  119s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  119s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  123s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  131s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  145s
+[2026-05-27 04:01:18] --- Rep 2 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  97s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  97s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  97s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  98s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  99s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  100s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  101s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  101s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  105s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  104s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  104s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  106s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  106s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  109s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  117s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  118s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  118s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  119s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  123s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  131s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  147s
+[2026-05-27 04:54:17] --- Rep 3 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  97s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  97s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  97s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  97s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  98s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  99s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  100s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  100s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  105s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  104s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  105s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  105s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  105s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  110s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  116s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  117s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  118s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  120s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  123s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  130s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  145s
+[2026-05-27 05:47:08] --- Rep 4 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  97s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  97s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  97s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  98s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  98s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  98s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  101s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  100s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  101s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  107s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  104s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  105s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  105s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  106s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  110s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  118s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  117s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  119s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  119s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  123s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  131s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  144s
+[2026-05-27 06:40:05] --- Rep 5 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  98s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  97s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  97s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  97s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  99s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  101s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  101s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  100s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  105s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  104s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  104s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  106s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  106s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  110s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  118s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  118s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  119s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  119s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  124s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  130s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  144s
+[2026-05-27 07:33:03] Phase A3 complete
+[2026-05-27 07:33:03] === PHASE A4: BF16+DFlash quality profiles ===
+[2026-05-27 07:33:03]   running profile=lavd
+[2026-05-27 07:36:08]   running profile=hotel-lights
+[2026-05-27 08:00:30] Phase A4 complete
+[2026-05-27 08:00:30] === A→B HANDOFF: swapping launcher to FP8+MTP=3 ===
+[2026-05-27 08:00:30]   backed up bf16+dflash launcher to /home/josh/vllm-services/launch-qwen36-27b-tp2-sota.sh.bak.bf16dflash-20260527T080030
+[2026-05-27 08:00:30]   launcher rewritten - new model/spec lines:
+45:    --model Qwen/Qwen3.6-27B-FP8 \
+58:    --speculative-config.method mtp \
+59:    --speculative-config.num_speculative_tokens 3 \
+vllm-qwen36-27b-tp2
+vllm-qwen36-27b-tp2
+[2026-05-27 08:00:31] Waiting for server ready (FP8+MTP=3 startup, timeout 600s)...
+[2026-05-27 08:07:12]   server ready at T+400s
+[2026-05-27 08:07:12] FP8+MTP=3 launched successfully
+[2026-05-27 08:07:12] Starting CJK watchdog (fp8)...
+[2026-05-27 08:07:12]   CJK watchdog pid=1211596
+[2026-05-27 08:07:12] === PHASE B1: FP8+MTP=3 methodology validation ===
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  225s
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  98s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  101s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  103s
+[2026-05-27 08:22:30] Phase B1 complete
+[2026-05-27 08:22:30] === PHASE B3: FP8+MTP=3 full matrix N=5 ===
+[2026-05-27 08:22:30] --- Rep 1 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  98s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  97s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  96s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  98s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  98s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  98s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  100s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  99s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  100s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  99s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  107s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  103s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  105s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  104s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  106s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  110s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  118s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  117s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  116s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  117s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  123s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  129s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  146s
+[2026-05-27 09:15:17] --- Rep 2 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  98s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  97s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  97s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  98s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  96s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  97s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  104s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  99s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  99s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  100s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  102s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  107s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  103s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  104s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  104s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)
+[DONE] c8-ctx64k  106s
+[RUN ] c16-ctx64k  conc=16 ctx=64k  extra=(none)
+[DONE] c16-ctx64k  109s
+[RUN ] c32-ctx64k  conc=32 ctx=64k  extra=(none)
+[DONE] c32-ctx64k  119s
+[RUN ] c1-ctx131k  conc=1 ctx=131k  extra=(none)
+[DONE] c1-ctx131k  116s
+[RUN ] c2-ctx131k  conc=2 ctx=131k  extra=(none)
+[DONE] c2-ctx131k  117s
+[RUN ] c4-ctx131k  conc=4 ctx=131k  extra=(none)
+[DONE] c4-ctx131k  119s
+[RUN ] c8-ctx131k  conc=8 ctx=131k  extra=(none)
+[DONE] c8-ctx131k  123s
+[RUN ] c16-ctx131k  conc=16 ctx=131k  extra=(none)
+[DONE] c16-ctx131k  131s
+[RUN ] c32-ctx131k  conc=32 ctx=131k  extra=(none)
+[DONE] c32-ctx131k  147s
+[2026-05-27 10:08:15] --- Rep 3 ---
+[RUN ] c1-ctx0  conc=1 ctx=0  extra=(none)
+[DONE] c1-ctx0  97s
+[RUN ] c2-ctx0  conc=2 ctx=0  extra=(none)
+[DONE] c2-ctx0  97s
+[RUN ] c4-ctx0  conc=4 ctx=0  extra=(none)
+[DONE] c4-ctx0  97s
+[RUN ] c8-ctx0  conc=8 ctx=0  extra=(none)
+[DONE] c8-ctx0  97s
+[RUN ] c16-ctx0  conc=16 ctx=0  extra=(none)
+[DONE] c16-ctx0  97s
+[RUN ] c32-ctx0  conc=32 ctx=0  extra=(none)
+[DONE] c32-ctx0  98s
+[RUN ] c1-ctx16k  conc=1 ctx=16k  extra=(none)
+[DONE] c1-ctx16k  97s
+[RUN ] c2-ctx16k  conc=2 ctx=16k  extra=(none)
+[DONE] c2-ctx16k  96s
+[RUN ] c4-ctx16k  conc=4 ctx=16k  extra=(none)
+[DONE] c4-ctx16k  97s
+[RUN ] c8-ctx16k  conc=8 ctx=16k  extra=(none)
+[DONE] c8-ctx16k  98s
+[RUN ] c16-ctx16k  conc=16 ctx=16k  extra=(none)
+[DONE] c16-ctx16k  99s
+[RUN ] c32-ctx16k  conc=32 ctx=16k  extra=(none)
+[DONE] c32-ctx16k  98s
+[RUN ] c1-ctx32k  conc=1 ctx=32k  extra=(none)
+[DONE] c1-ctx32k  98s
+[RUN ] c2-ctx32k  conc=2 ctx=32k  extra=(none)
+[DONE] c2-ctx32k  98s
+[RUN ] c4-ctx32k  conc=4 ctx=32k  extra=(none)
+[DONE] c4-ctx32k  100s
+[RUN ] c8-ctx32k  conc=8 ctx=32k  extra=(none)
+[DONE] c8-ctx32k  101s
+[RUN ] c16-ctx32k  conc=16 ctx=32k  extra=(none)
+[DONE] c16-ctx32k  101s
+[RUN ] c32-ctx32k  conc=32 ctx=32k  extra=(none)
+[DONE] c32-ctx32k  106s
+[RUN ] c1-ctx64k  conc=1 ctx=64k  extra=(none)
+[DONE] c1-ctx64k  104s
+[RUN ] c2-ctx64k  conc=2 ctx=64k  extra=(none)
+[DONE] c2-ctx64k  103s
+[RUN ] c4-ctx64k  conc=4 ctx=64k  extra=(none)
+[DONE] c4-ctx64k  105s
+[RUN ] c8-ctx64k  conc=8 ctx=64k  extra=(none)

@@ -1,0 +1,9 @@
+endpoint_id,model,base_url,final_score,rating,total_points,max_points,deployability,responsiveness,median_turn_ms,total_tokens,token_efficiency,worst_category,scenario_count,thinking_enabled,run_id
+D1-local,Qwen3.6-27B,http://***:8000,93,★★★★★ Excellent,28,30,89,80,1195.8,36064,0.78,C Multi-Step Chains (67%),15,True,2026-05-27T10-39-14Z_9af9d9
+D8-gemini-3.5-flash,google/gemini-3.5-flash,https://***/api,93,★★★★★ Excellent,28,30,87,72,1590.0,30916,0.91,B Parameter Precision (67%),15,True,2026-05-27T08-17-18Z_d78a5f
+D9-qwen-235b-cerebras,qwen-3-235b-a22b-instruct-2507,https://***,87,★★★★ Good,26,30,90,96,363.1,50962,0.51,A Tool Selection (67%),15,True,2026-05-27T08-18-18Z_0e5c67
+D4-claude-haiku-4.5,anthropic/claude-haiku-4.5,https://***/api,87,★★★★ Good,26,30,78,57,2464.4,55831,0.47,C Multi-Step Chains (67%),15,True,2026-05-27T08-04-39Z_36ef2f
+D3-claude-sonnet-4.6,anthropic/claude-sonnet-4.6,https://***/api,77,★★★★ Good,23,30,71,56,2546.8,69709,0.33,E Error Recovery (33%),15,True,2026-05-27T08-02-57Z_57b394
+D5-gpt-5.5,openai/gpt-5.5,https://***/api,73,★★★ Adequate,22,30,67,52,2877.6,25637,0.86,E Error Recovery (33%),15,True,2026-05-27T08-06-07Z_9e847b
+D7-gpt-5-nano,openai/gpt-5-nano,https://***/api,73,★★★ Adequate,22,30,56,15,9355.5,40922,0.54,E Error Recovery (50%),15,True,2026-05-27T08-11-00Z_d56d0c
+D6-gpt-5-mini,openai/gpt-5-mini,https://***/api,60,★★★ Adequate,18,30,49,24,6483.0,31111,0.58,E Error Recovery (17%),15,True,2026-05-27T08-07-43Z_30ebad

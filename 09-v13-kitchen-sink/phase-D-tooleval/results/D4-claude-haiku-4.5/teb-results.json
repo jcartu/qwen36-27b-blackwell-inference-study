@@ -1,0 +1,447 @@
+{
+  "schema_version": "1",
+  "tool_eval_bench_version": "1.8.0",
+  "final_score": 87,
+  "rating": "\u2605\u2605\u2605\u2605 Good",
+  "safety_warnings": [],
+  "deployability": 78,
+  "responsiveness": 57,
+  "total_scenarios": 15,
+  "run_id": "2026-05-27T08-04-39Z_36ef2f",
+  "status": "completed",
+  "config": {
+    "model": "anthropic/claude-haiku-4.5",
+    "backend": "vllm",
+    "base_url": "https://***/api",
+    "temperature": 0.2,
+    "timeout_seconds": 90.0,
+    "max_turns": 8,
+    "seed": 42,
+    "reference_date": null,
+    "scenario_count": 15,
+    "scenario_ids": [
+      "TC-01",
+      "TC-02",
+      "TC-03",
+      "TC-04",
+      "TC-05",
+      "TC-06",
+      "TC-07",
+      "TC-08",
+      "TC-09",
+      "TC-10",
+      "TC-11",
+      "TC-12",
+      "TC-13",
+      "TC-14",
+      "TC-15"
+    ]
+  },
+  "scores": {
+    "final_score": 87,
+    "total_points": 26,
+    "max_points": 30,
+    "rating": "\u2605\u2605\u2605\u2605 Good",
+    "category_scores": [
+      {
+        "category": "A",
+        "label": "Tool Selection",
+        "earned": 5,
+        "max": 6,
+        "percent": 83,
+        "pass_count": 2,
+        "partial_count": 1,
+        "fail_count": 0
+      },
+      {
+        "category": "B",
+        "label": "Parameter Precision",
+        "earned": 6,
+        "max": 6,
+        "percent": 100,
+        "pass_count": 3,
+        "partial_count": 0,
+        "fail_count": 0
+      },
+      {
+        "category": "C",
+        "label": "Multi-Step Chains",
+        "earned": 4,
+        "max": 6,
+        "percent": 67,
+        "pass_count": 2,
+        "partial_count": 0,
+        "fail_count": 1
+      },
+      {
+        "category": "D",
+        "label": "Restraint & Refusal",
+        "earned": 5,
+        "max": 6,
+        "percent": 83,
+        "pass_count": 2,
+        "partial_count": 1,
+        "fail_count": 0
+      },
+      {
+        "category": "E",
+        "label": "Error Recovery",
+        "earned": 6,
+        "max": 6,
+        "percent": 100,
+        "pass_count": 3,
+        "partial_count": 0,
+        "fail_count": 0
+      }
+    ],
+    "scenario_results": [
+      {
+        "scenario_id": "TC-01",
+        "status": "pass",
+        "points": 2,
+        "summary": "Used get_weather with Berlin only.",
+        "note": null,
+        "tool_calls_made": [
+          "get_weather(location=Berlin)"
+        ],
+        "expected_behavior": "Use get_weather instead of falling back to web_search.",
+        "duration_seconds": 4.47,
+        "turn_count": 2,
+        "ttft_ms": 2185.4,
+        "turn_latencies_ms": [
+          2457.8,
+          2006.8
+        ],
+        "prompt_tokens": 3762,
+        "completion_tokens": 198,
+        "total_tokens": 3960,
+        "tool_call_arg_bytes": 22
+      },
+      {
+        "scenario_id": "TC-02",
+        "status": "pass",
+        "points": 2,
+        "summary": "Used only get_stock_price for AAPL.",
+        "note": null,
+        "tool_calls_made": [
+          "get_stock_price(ticker=AAPL)"
+        ],
+        "expected_behavior": "Use get_stock_price without extra tools.",
+        "duration_seconds": 10.57,
+        "turn_count": 2,
+        "ttft_ms": 3060.7,
+        "turn_latencies_ms": [
+          3260.1,
+          7310.4
+        ],
+        "prompt_tokens": 3761,
+        "completion_tokens": 218,
+        "total_tokens": 3979,
+        "tool_call_arg_bytes": 18
+      },
+      {
+        "scenario_id": "TC-03",
+        "status": "partial",
+        "points": 1,
+        "summary": "Asked for Sarah's email instead of inferring the tool chain.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Infer get_contacts followed by send_email.",
+        "duration_seconds": 2.4,
+        "turn_count": 1,
+        "ttft_ms": 1101.5,
+        "turn_latencies_ms": [
+          2401.6
+        ],
+        "prompt_tokens": 1759,
+        "completion_tokens": 156,
+        "total_tokens": 1915
+      },
+      {
+        "scenario_id": "TC-04",
+        "status": "pass",
+        "points": 2,
+        "summary": "Requested Tokyo weather in Fahrenheit explicitly.",
+        "note": null,
+        "tool_calls_made": [
+          "get_weather(location=Tokyo, units=fahrenheit)"
+        ],
+        "expected_behavior": "Pass the requested units parameter instead of ignoring it.",
+        "duration_seconds": 3.75,
+        "turn_count": 2,
+        "ttft_ms": 1691.8,
+        "turn_latencies_ms": [
+          1974.2,
+          1771.6
+        ],
+        "prompt_tokens": 3775,
+        "completion_tokens": 131,
+        "total_tokens": 3906,
+        "tool_call_arg_bytes": 44
+      },
+      {
+        "scenario_id": "TC-05",
+        "status": "pass",
+        "points": 2,
+        "summary": "Parsed next Monday and included the requested meeting details.",
+        "note": null,
+        "tool_calls_made": [
+          "create_calendar_event(title=Team Standup, date=2026-03-23, time=09:30, duration_minutes=30, attendees=['Alex', 'Jamie'])"
+        ],
+        "expected_behavior": "Parse relative date and structured event parameters correctly.",
+        "duration_seconds": 4.38,
+        "turn_count": 2,
+        "ttft_ms": 1815.4,
+        "turn_latencies_ms": [
+          2471.0,
+          1907.6
+        ],
+        "prompt_tokens": 3868,
+        "completion_tokens": 189,
+        "total_tokens": 4057,
+        "tool_call_arg_bytes": 119
+      },
+      {
+        "scenario_id": "TC-06",
+        "status": "pass",
+        "points": 2,
+        "summary": "Issued separate translate_text calls for both languages.",
+        "note": null,
+        "tool_calls_made": [
+          "translate_text(text=Where is the nearest hospital?, source_language=English, target_language=Spanish)",
+          "translate_text(text=Where is the nearest hospital?, source_language=English, target_language=Japanese)"
+        ],
+        "expected_behavior": "Split a one-to-many translation request into two tool calls.",
+        "duration_seconds": 6.14,
+        "turn_count": 2,
+        "ttft_ms": 3034.4,
+        "turn_latencies_ms": [
+          3686.6,
+          2456.2
+        ],
+        "prompt_tokens": 4012,
+        "completion_tokens": 249,
+        "total_tokens": 4261,
+        "tool_call_arg_bytes": 205
+      },
+      {
+        "scenario_id": "TC-07",
+        "status": "fail",
+        "points": 0,
+        "summary": "Did not carry the file and contact data across the chain correctly.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Thread file search, file read, contact lookup, and send_email end to end.",
+        "duration_seconds": 2.19,
+        "turn_count": 1,
+        "ttft_ms": 1141.3,
+        "turn_latencies_ms": [
+          2191.0
+        ],
+        "prompt_tokens": 1760,
+        "completion_tokens": 103,
+        "total_tokens": 1863
+      },
+      {
+        "scenario_id": "TC-08",
+        "status": "pass",
+        "points": 2,
+        "summary": "Checked the weather first, then set the rainy-day reminder.",
+        "note": null,
+        "tool_calls_made": [
+          "get_weather(location=Paris)",
+          "set_reminder(message=Bring an umbrella, datetime=2026-03-21T08:00:00)"
+        ],
+        "expected_behavior": "Branch off the weather result instead of setting the reminder blindly.",
+        "duration_seconds": 8.0,
+        "turn_count": 3,
+        "ttft_ms": 3609.3,
+        "turn_latencies_ms": [
+          3987.0,
+          2382.7,
+          1633.6
+        ],
+        "prompt_tokens": 6036,
+        "completion_tokens": 294,
+        "total_tokens": 6330,
+        "tool_call_arg_bytes": 88
+      },
+      {
+        "scenario_id": "TC-09",
+        "status": "pass",
+        "points": 2,
+        "summary": "Handled both independent tasks.",
+        "note": "Both tools were called in the same assistant turn.",
+        "tool_calls_made": [
+          "get_weather(location=London)",
+          "get_stock_price(ticker=MSFT)"
+        ],
+        "expected_behavior": "Handle two independent requests without missing either one.",
+        "duration_seconds": 6.23,
+        "turn_count": 2,
+        "ttft_ms": 1380.0,
+        "turn_latencies_ms": [
+          1671.4,
+          4554.0
+        ],
+        "prompt_tokens": 4005,
+        "completion_tokens": 310,
+        "total_tokens": 4315,
+        "tool_call_arg_bytes": 40
+      },
+      {
+        "scenario_id": "TC-10",
+        "status": "pass",
+        "points": 2,
+        "summary": "Answered directly without tool use.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Avoid tools for basic knowledge.",
+        "duration_seconds": 1.77,
+        "turn_count": 1,
+        "ttft_ms": 1385.3,
+        "turn_latencies_ms": [
+          1773.1
+        ],
+        "prompt_tokens": 1753,
+        "completion_tokens": 71,
+        "total_tokens": 1824
+      },
+      {
+        "scenario_id": "TC-11",
+        "status": "partial",
+        "points": 1,
+        "summary": "Reached for calculator on 15%\u00d7200 \u2014 correct answer but mental math was sufficient.",
+        "note": null,
+        "tool_calls_made": [
+          "calculator(expression=0.15 * 200)"
+        ],
+        "expected_behavior": "Avoid calculator for easy arithmetic.",
+        "duration_seconds": 7.1,
+        "turn_count": 2,
+        "ttft_ms": 3524.1,
+        "turn_latencies_ms": [
+          3703.4,
+          3395.0
+        ],
+        "prompt_tokens": 3585,
+        "completion_tokens": 71,
+        "total_tokens": 3656,
+        "tool_call_arg_bytes": 28
+      },
+      {
+        "scenario_id": "TC-12",
+        "status": "pass",
+        "points": 2,
+        "summary": "Refused cleanly because no delete-email tool exists.",
+        "note": null,
+        "tool_calls_made": [],
+        "expected_behavior": "Refuse cleanly when no suitable tool exists.",
+        "duration_seconds": 2.27,
+        "turn_count": 1,
+        "ttft_ms": 840.8,
+        "turn_latencies_ms": [
+          2272.2
+        ],
+        "prompt_tokens": 1753,
+        "completion_tokens": 184,
+        "total_tokens": 1937
+      },
+      {
+        "scenario_id": "TC-13",
+        "status": "pass",
+        "points": 2,
+        "summary": "Asked for clarification after the empty result.",
+        "note": null,
+        "tool_calls_made": [
+          "search_files(query=Johnson proposal)"
+        ],
+        "expected_behavior": "Retry or ask for clarification when the first search returns nothing.",
+        "duration_seconds": 8.41,
+        "turn_count": 2,
+        "ttft_ms": 3662.7,
+        "turn_latencies_ms": [
+          3940.3,
+          4472.0
+        ],
+        "prompt_tokens": 3634,
+        "completion_tokens": 219,
+        "total_tokens": 3853,
+        "tool_call_arg_bytes": 29
+      },
+      {
+        "scenario_id": "TC-14",
+        "status": "pass",
+        "points": 2,
+        "summary": "Acknowledged the stock tool failure and handled it gracefully.",
+        "note": null,
+        "tool_calls_made": [
+          "get_stock_price(ticker=AAPL)"
+        ],
+        "expected_behavior": "Surface tool errors instead of hallucinating a price.",
+        "duration_seconds": 10.59,
+        "turn_count": 2,
+        "ttft_ms": 6448.4,
+        "turn_latencies_ms": [
+          6487.2,
+          4103.0
+        ],
+        "prompt_tokens": 3676,
+        "completion_tokens": 168,
+        "total_tokens": 3844,
+        "tool_call_arg_bytes": 18
+      },
+      {
+        "scenario_id": "TC-15",
+        "status": "pass",
+        "points": 2,
+        "summary": "Used the searched population value in the calculator.",
+        "note": null,
+        "tool_calls_made": [
+          "web_search(query=population of Iceland)",
+          "calculator(expression=372520 * 0.02)"
+        ],
+        "expected_behavior": "Carry the exact searched value into the calculator.",
+        "duration_seconds": 8.95,
+        "turn_count": 3,
+        "ttft_ms": 3256.2,
+        "turn_latencies_ms": [
+          3603.7,
+          1707.7,
+          3639.3
+        ],
+        "prompt_tokens": 5919,
+        "completion_tokens": 212,
+        "total_tokens": 6131,
+        "tool_call_arg_bytes": 65
+      }
+    ],
+    "worst_category": "C Multi-Step Chains (67%)",
+    "worst_category_percent": 67,
+    "deployability": 78,
+    "responsiveness": 57,
+    "median_turn_ms": 2464.4,
+    "alpha": 0.7,
+    "total_tokens": 55831,
+    "token_efficiency": 0.47
+  },
+  "metadata": {
+    "tool_version": "1.8.0",
+    "hostname": "rasputin",
+    "platform_info": "Linux-7.0.10-arch1-1-x86_64-with-glibc2.43",
+    "python_version": "3.14.4",
+    "model": "anthropic/claude-haiku-4.5",
+    "backend": "vllm",
+    "base_url": "https://***/api",
+    "temperature": 0.2,
+    "max_turns": 8,
+    "timeout_seconds": 90.0,
+    "seed": 42,
+    "scenario_selector": "short (15)",
+    "trials": 1,
+    "parallel": 1,
+    "error_rate": 0.0,
+    "thinking_enabled": true
+  },
+  "report_path": "/home/josh/qwen-vllm-test/sweeps/v13-kitchen-sink-bf16dflash-and-fp8mtp3/phase-D-tooleval/results/D4-claude-haiku-4.5/2026/05/2026-05-27T08-04-39Z_36ef2f.md"
+}

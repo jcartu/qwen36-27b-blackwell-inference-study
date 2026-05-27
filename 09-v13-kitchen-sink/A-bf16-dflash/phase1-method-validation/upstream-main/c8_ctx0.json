@@ -1,0 +1,597 @@
+{
+  "metadata": {
+    "version": "0.4.23",
+    "engine": "vllm",
+    "model": "Qwen3.6-27B",
+    "server": "localhost:8000",
+    "timestamp": "2026-05-27T03:01:41.603080",
+    "decode_mode": "duration",
+    "primary_decode_layer": "sustained_decode",
+    "duration_per_test": 60.0,
+    "request_count": 0,
+    "warmup_request_count": 0,
+    "run_burst": false,
+    "prefill_mode": "skipped",
+    "standalone_prefill": false,
+    "prefill_only": false,
+    "skip_prefill": true,
+    "burst_e2e_status": "not_run_use_--run-burst",
+    "burst_request_count": 0,
+    "burst_warmup_request_count": 0,
+    "burst_requests_per_concurrency": 5,
+    "decode_warmup_seconds": 20.0,
+    "decode_warmup_context": 0,
+    "decode_warmup_concurrency": 1,
+    "cell_warmup_timeout_seconds": 0.0,
+    "cell_warmup_timeout_policy": "<=32k:60s,64k:120s,>=128k:180s when override is 0",
+    "show_capacity_limited_values": false,
+    "max_tokens": 2048,
+    "ignore_eos": true,
+    "max_total_tokens": 0,
+    "dcp_size": 0,
+    "metrics_available": true,
+    "metrics_warning": "",
+    "concurrency_levels": [
+      8
+    ],
+    "context_lengths": [
+      0
+    ],
+    "startup_diagnostics_available": true,
+    "nvidia_p2p_override_effective": false,
+    "p2pmark_status": "not_run",
+    "amd_fabric_status": "not_run"
+  },
+  "startup_diagnostics": {
+    "version": "0.4.23",
+    "server_url": "http://localhost:8000",
+    "hostname": "rasputin",
+    "uname": "Linux rasputin 7.0.10-arch1-1 #1 SMP PREEMPT_DYNAMIC Sat, 23 May 2026 14:21:20 +0000 x86_64 GNU/Linux",
+    "env": {
+      "CUDA_PATH": "/opt/cuda"
+    },
+    "args": {
+      "concurrency": "8",
+      "contexts": "0",
+      "max_tokens": 2048,
+      "duration": 60.0,
+      "request_count": 0,
+      "run_burst": false,
+      "standalone_prefill": false,
+      "prefill_only": false,
+      "skip_prefill": true,
+      "prefill_contexts": "8k,64k,128k",
+      "prefill_metric": "client",
+      "dcp_size": 0,
+      "kv_budget": 0
+    },
+    "nvidia_p2p_override": {
+      "effective": false,
+      "configured": false,
+      "params_path": "/proc/driver/nvidia/params",
+      "params_available": true,
+      "modprobe_path": "/etc/modprobe.d/nvidia-p2p-override.conf",
+      "modprobe_available": false,
+      "runtime": {
+        "ForceP2P": "",
+        "RMForceP2PType": "",
+        "RMPcieP2PType": "",
+        "GrdmaPciTopoCheckOverride": "0",
+        "EnableResizableBar": "0",
+        "DmaRemapPeerMmio": "1"
+      },
+      "expected": {
+        "ForceP2P": "0x11",
+        "RMForceP2PType": "1",
+        "RMPcieP2PType": "2",
+        "GrdmaPciTopoCheckOverride": "1",
+        "EnableResizableBar": "1"
+      },
+      "missing": [
+        "ForceP2P",
+        "RMForceP2PType",
+        "RMPcieP2PType"
+      ],
+      "mismatched": {
+        "GrdmaPciTopoCheckOverride": {
+          "expected": "1",
+          "actual": "0"
+        },
+        "EnableResizableBar": {
+          "expected": "1",
+          "actual": "0"
+        }
+      },
+      "registry_dwords": "",
+      "suggested_modprobe_line": "options nvidia NVreg_RegistryDwords=\"ForceP2P=0x11;RMForceP2PType=1;RMPcieP2PType=2;GrdmaPciTopoCheckOverride=1;EnableResizableBar=1\"",
+      "suggested_reload": "stop GPU workloads, then reload NVIDIA modules or reboot; the modprobe file alone is not enough until the nvidia module is reloaded"
+    },
+    "p2pmark": {
+      "status": "not_run"
+    },
+    "amd_fabric": {
+      "status": "not_run"
+    },
+    "nvidia_smi_query": {
+      "cmd": [
+        "nvidia-smi",
+        "--query-gpu=index,name,driver_version,pci.bus_id,pcie.link.gen.current,pcie.link.width.current,power.limit",
+        "--format=csv,noheader,nounits"
+      ],
+      "returncode": 0,
+      "stdout": "0, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 595.71.05, 00000000:16:00.0, 5, 16, 600.00\n1, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 595.71.05, 00000000:34:00.0, 5, 16, 600.00\n2, NVIDIA RTX PRO 6000 Blackwell Workstation Edition, 595.71.05, 00000000:52:00.0, 5, 16, 600.00",
+      "stderr": ""
+    },
+    "nvidia_smi_topo": {
+      "cmd": [
+        "nvidia-smi",
+        "topo",
+        "-m"
+      ],
+      "returncode": 0,
+      "stdout": "\u001b[4mGPU0\tGPU1\tGPU2\tCPU Affinity\tNUMA Affinity\tGPU NUMA ID\u001b[0m\nGPU0\t X \tNODE\tNODE\t0-111\t0\t\tN/A\nGPU1\tNODE\t X \tNODE\t0-111\t0\t\tN/A\nGPU2\tNODE\tNODE\t X \t0-111\t0\t\tN/A\n\nLegend:\n\n  X    = Self\n  SYS  = Connection traversing PCIe as well as the SMP interconnect between NUMA nodes (e.g., QPI/UPI)\n  NODE = Connection traversing PCIe as well as the interconnect between PCIe Host Bridges within a NUMA node\n  PHB  = Connection traversing PCIe as well as a PCIe Host Bridge (typically the CPU)\n  PXB  = Connection traversing multiple PCIe bridges (without traversing the PCIe Host Bridge)\n  PIX  = Connection traversing at most a single PCIe bridge\n  NV#  = Connection traversing a bonded set of # NVLinks",
+      "stderr": ""
+    }
+  },
+  "nvidia_p2p_override": {
+    "effective": false,
+    "configured": false,
+    "params_path": "/proc/driver/nvidia/params",
+    "params_available": true,
+    "modprobe_path": "/etc/modprobe.d/nvidia-p2p-override.conf",
+    "modprobe_available": false,
+    "runtime": {
+      "ForceP2P": "",
+      "RMForceP2PType": "",
+      "RMPcieP2PType": "",
+      "GrdmaPciTopoCheckOverride": "0",
+      "EnableResizableBar": "0",
+      "DmaRemapPeerMmio": "1"
+    },
+    "expected": {
+      "ForceP2P": "0x11",
+      "RMForceP2PType": "1",
+      "RMPcieP2PType": "2",
+      "GrdmaPciTopoCheckOverride": "1",
+      "EnableResizableBar": "1"
+    },
+    "missing": [
+      "ForceP2P",
+      "RMForceP2PType",
+      "RMPcieP2PType"
+    ],
+    "mismatched": {
+      "GrdmaPciTopoCheckOverride": {
+        "expected": "1",
+        "actual": "0"
+      },
+      "EnableResizableBar": {
+        "expected": "1",
+        "actual": "0"
+      }
+    },
+    "registry_dwords": "",
+    "suggested_modprobe_line": "options nvidia NVreg_RegistryDwords=\"ForceP2P=0x11;RMForceP2PType=1;RMPcieP2PType=2;GrdmaPciTopoCheckOverride=1;EnableResizableBar=1\"",
+    "suggested_reload": "stop GPU workloads, then reload NVIDIA modules or reboot; the modprobe file alone is not enough until the nvidia module is reloaded"
+  },
+  "p2pmark": {
+    "status": "not_run"
+  },
+  "amd_fabric": {
+    "status": "not_run"
+  },
+  "event_log": [
+    "03:00:06 benchmark start engine=vllm",
+    "03:00:06 startup server=http://localhost:8000 model=Qwen3.6-27B",
+    "03:00:06 startup decode concurrency=8 contexts=0",
+    "03:00:06 startup NVIDIA P2P override: not effective: missing=ForceP2P,RMForceP2PType,RMPcieP2PType; mismatched=GrdmaPciTopoCheckOverride,EnableResizableBar",
+    "03:00:06 startup engine vLLM 0.1.dev17130+g155fef0e5.d20260526 models=['Qwen3.6-27B']",
+    "03:00:06 startup WARNING: vLLM Prometheus reports local KV only (102,848); pass --dcp-size or --kv-budget for exact capacity skips",
+    "03:00:06 startup WARNING: vLLM KV cache budget not available from metrics; use --kv-budget for exact capacity skips",
+    "03:00:06 startup model context length: 262,144 tokens",
+    "03:00:06 startup prefill tests: skipped",
+    "03:00:06 startup startup preparation done",
+    "03:00:06 startup hardware monitor disabled",
+    "03:00:06 decode warmup start",
+    "03:00:06 decode warmup start C=1 ctx=0 20s",
+    "03:00:06 cell start C=1 ctx=0",
+    "03:00:11 ready C=1 ctx=0 running_reqs=1/1, queue_reqs=0, active_streams=1/1, stable=3.0s",
+    "03:00:31 cell done C=1 ctx=0 86.3 tok/s",
+    "03:00:31 decode warmup done C=1 ctx=0",
+    "03:00:33 cell start C=8 ctx=0",
+    "03:00:39 ready C=8 ctx=0 running_reqs=8/8, queue_reqs=0, active_streams=8/8, stable=3.0s",
+    "03:01:39 cell done C=8 ctx=0 586.4 tok/s"
+  ],
+  "prefill": {},
+  "results": [
+    {
+      "concurrency": 8,
+      "context_tokens": 0,
+      "benchmark_mode": "duration",
+      "request_count_target": 0,
+      "warmup_request_count": 0,
+      "measurement_seconds": 59.980124,
+      "measurement_wall_seconds": 60.000399,
+      "client_output_tokens": 35171,
+      "server_output_tokens": 35171,
+      "aggregate_source": "openai_continuous_usage",
+      "aggregate_tps": 586.3775841797648,
+      "per_request_avg_tps": 73.2971980224706,
+      "ttft_avg": 0.1490390605833151,
+      "ttft_p50": 0.14697182450072432,
+      "ttft_p90": 0.18379450640022696,
+      "ttft_p99": 0.19901066247002747,
+      "time_to_second_token_avg": 0.048187017458379465,
+      "time_to_second_token_p50": 0.037994381499629526,
+      "time_to_second_token_p90": 0.07382621520009706,
+      "time_to_second_token_p99": 0.07474613120124558,
+      "request_latency_avg": 28.227089664999994,
+      "request_latency_p50": 28.51758877749944,
+      "request_latency_p90": 29.75992333999966,
+      "request_latency_p99": 32.42268637349925,
+      "inter_token_latency_avg": 0.013089504678037902,
+      "inter_token_latency_p50": 0.013401702549096551,
+      "inter_token_latency_p90": 0.014163648043673115,
+      "inter_token_latency_p99": 0.015662127490156167,
+      "output_tps_per_user_avg": 77.08789115386361,
+      "output_tps_per_user_p50": 74.62046461503002,
+      "output_tps_per_user_p90": 87.1452894635202,
+      "output_tps_per_user_p99": 92.79897616593567,
+      "e2e_output_tps_per_user_avg": 72.88399642785012,
+      "e2e_output_tps_per_user_p50": 71.81642897638339,
+      "e2e_output_tps_per_user_p90": 79.26668693390434,
+      "e2e_output_tps_per_user_p99": 83.90335828728685,
+      "chunk_inter_token_latency_avg": 0.038352838760395046,
+      "chunk_inter_token_latency_p50": 0.038364344351706124,
+      "chunk_inter_token_latency_p90": 0.03863165941981519,
+      "chunk_inter_token_latency_p99": 0.03875938839031884,
+      "input_seq_len_avg": 77.0,
+      "output_seq_len_avg": 2048.0,
+      "output_seq_len_p50": 2048.0,
+      "output_seq_len_p90": 2048.0,
+      "output_seq_len_p99": 2048.0,
+      "request_count": 24,
+      "completed_request_count": 16,
+      "request_samples": [
+        {
+          "ttft": 0.12563288299861597,
+          "time_to_second_token": 0.07355164100044931,
+          "latency": 28.405945299999075,
+          "inter_token_latency_avg": 0.013815492143136522,
+          "chunk_inter_token_latency_avg": 0.03832020652710089,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 72.38251012989036,
+          "e2e_output_tps_per_user": 72.097583036607,
+          "completed": true
+        },
+        {
+          "ttft": 0.14499284900011844,
+          "time_to_second_token": 0.037209573998552514,
+          "latency": 28.65583093499845,
+          "inter_token_latency_avg": 0.013928108493404166,
+          "chunk_inter_token_latency_avg": 0.03837259500134365,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 71.79725807517674,
+          "e2e_output_tps_per_user": 71.46887503089991,
+          "completed": true
+        },
+        {
+          "ttft": 0.1481010609986697,
+          "time_to_second_token": 0.039035087000229396,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.012445438065770502,
+          "chunk_inter_token_latency_avg": 0.038368654682029796,
+          "input_tokens": 77,
+          "output_tokens": 670,
+          "output_tps_per_user": 80.35072728780557,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.12562274400079332,
+          "time_to_second_token": 0.07348054599970055,
+          "latency": 24.358034639000834,
+          "inter_token_latency_avg": 0.011838012650219854,
+          "chunk_inter_token_latency_avg": 0.03810127656446547,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 84.47363840090406,
+          "e2e_output_tps_per_user": 84.07903307276062,
+          "completed": true
+        },
+        {
+          "ttft": 0.14849238600072567,
+          "time_to_second_token": 0.03649716099971556,
+          "latency": 28.71661579800093,
+          "inter_token_latency_avg": 0.013956093508549197,
+          "chunk_inter_token_latency_avg": 0.03844969503633944,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 71.65328889401765,
+          "e2e_output_tps_per_user": 71.31759586178566,
+          "completed": true
+        },
+        {
+          "ttft": 0.14931421499932185,
+          "time_to_second_token": 0.036378167000293615,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.012024138252931138,
+          "chunk_inter_token_latency_avg": 0.038597860724142584,
+          "input_tokens": 77,
+          "output_tokens": 1025,
+          "output_tps_per_user": 83.16604308472824,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.1260643749992596,
+          "time_to_second_token": 0.07361157500054105,
+          "latency": 27.38311515100031,
+          "inter_token_latency_avg": 0.013315608586224256,
+          "chunk_inter_token_latency_avg": 0.038228682715288995,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 75.0998344179744,
+          "e2e_output_tps_per_user": 74.7906141688626,
+          "completed": true
+        },
+        {
+          "ttft": 0.15089338399957342,
+          "time_to_second_token": 0.036757189000127255,
+          "latency": 32.81992725899909,
+          "inter_token_latency_avg": 0.015959469406448223,
+          "chunk_inter_token_latency_avg": 0.038524804097876786,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 62.65872470647192,
+          "e2e_output_tps_per_user": 62.40111331869107,
+          "completed": true
+        },
+        {
+          "ttft": 0.14733130900094693,
+          "time_to_second_token": 0.03677399600019271,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.010609166723926474,
+          "chunk_inter_token_latency_avg": 0.03786775567883245,
+          "input_tokens": 77,
+          "output_tokens": 490,
+          "output_tps_per_user": 94.25810961616202,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.12419154800045362,
+          "time_to_second_token": 0.07388076600000204,
+          "latency": 28.629232254999806,
+          "inter_token_latency_avg": 0.013925276359061725,
+          "chunk_inter_token_latency_avg": 0.03836479233781878,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 71.81186026152082,
+          "e2e_output_tps_per_user": 71.53527491615978,
+          "completed": true
+        },
+        {
+          "ttft": 0.14557626999885542,
+          "time_to_second_token": 0.07494357700124965,
+          "latency": 27.755095729999084,
+          "inter_token_latency_avg": 0.013487796511968846,
+          "chunk_inter_token_latency_avg": 0.03824033166205018,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 74.14109481208563,
+          "e2e_output_tps_per_user": 73.7882520717239,
+          "completed": true
+        },
+        {
+          "ttft": 0.144602248999945,
+          "time_to_second_token": 0.03775862899965432,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.011529515603071836,
+          "chunk_inter_token_latency_avg": 0.03864614457510345,
+          "input_tokens": 77,
+          "output_tokens": 782,
+          "output_tps_per_user": 86.73391271820367,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.12577097299981688,
+          "time_to_second_token": 0.07408511700123199,
+          "latency": 28.668509869001355,
+          "inter_token_latency_avg": 0.013943692670249896,
+          "chunk_inter_token_latency_avg": 0.03836389636559347,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 71.71701382472295,
+          "e2e_output_tps_per_user": 71.43726720914988,
+          "completed": true
+        },
+        {
+          "ttft": 0.1842660740003339,
+          "time_to_second_token": 0.037966305999361794,
+          "latency": 28.13459294600034,
+          "inter_token_latency_avg": 0.013654287675622866,
+          "chunk_inter_token_latency_avg": 0.03823574127496581,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 73.23706836683321,
+          "e2e_output_tps_per_user": 72.79294937484238,
+          "completed": true
+        },
+        {
+          "ttft": 0.1469465610007319,
+          "time_to_second_token": 0.03621495399966079,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.011451921073334233,
+          "chunk_inter_token_latency_avg": 0.03851542961883711,
+          "input_tokens": 77,
+          "output_tokens": 751,
+          "output_tps_per_user": 87.32159378294156,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.12517319000107818,
+          "time_to_second_token": 0.0736989300003188,
+          "latency": 27.08081052900161,
+          "inter_token_latency_avg": 0.01316836215876919,
+          "chunk_inter_token_latency_avg": 0.038180789432012086,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 75.93958822996612,
+          "e2e_output_tps_per_user": 75.62550603153989,
+          "completed": true
+        },
+        {
+          "ttft": 0.14699708800071676,
+          "time_to_second_token": 0.03831493299912836,
+          "latency": 24.70211879099952,
+          "inter_token_latency_avg": 0.011995662776257354,
+          "chunk_inter_token_latency_avg": 0.038367377660935634,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 83.36346383288377,
+          "e2e_output_tps_per_user": 82.90786783626879,
+          "completed": true
+        },
+        {
+          "ttft": 0.1458305249998375,
+          "time_to_second_token": 0.0389178860004904,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.012985116435115846,
+          "chunk_inter_token_latency_avg": 0.03866023302273127,
+          "input_tokens": 77,
+          "output_tokens": 1049,
+          "output_tps_per_user": 77.01124629854569,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.19923151100010728,
+          "time_to_second_token": 0.037922296000033384,
+          "latency": 29.348191990999112,
+          "inter_token_latency_avg": 0.014239843908157794,
+          "chunk_inter_token_latency_avg": 0.03845509298152903,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 70.22548887822533,
+          "e2e_output_tps_per_user": 69.78283366239758,
+          "completed": true
+        },
+        {
+          "ttft": 0.14741236500049126,
+          "time_to_second_token": 0.03751326499877905,
+          "latency": 28.776463062999028,
+          "inter_token_latency_avg": 0.013985857693208861,
+          "chunk_inter_token_latency_avg": 0.038274131949195905,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 71.50079901682196,
+          "e2e_output_tps_per_user": 71.16927453927903,
+          "completed": true
+        },
+        {
+          "ttft": 0.1445645429994329,
+          "time_to_second_token": 0.037950404001094284,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.011374745982784974,
+          "chunk_inter_token_latency_avg": 0.03825506675262946,
+          "input_tokens": 77,
+          "output_tokens": 640,
+          "output_tps_per_user": 87.91405113691705,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        },
+        {
+          "ttft": 0.19827129999976023,
+          "time_to_second_token": 0.03817333200095163,
+          "latency": 28.027295695001158,
+          "inter_token_latency_avg": 0.013595029015633316,
+          "chunk_inter_token_latency_avg": 0.038226681861265654,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 73.5562975886312,
+          "e2e_output_tps_per_user": 73.0716235446602,
+          "completed": true
+        },
+        {
+          "ttft": 0.14896386899999925,
+          "time_to_second_token": 0.03802245699989726,
+          "latency": 30.171654689000206,
+          "inter_token_latency_avg": 0.014666678466047977,
+          "chunk_inter_token_latency_avg": 0.03878900622739045,
+          "input_tokens": 77,
+          "output_tokens": 2048,
+          "output_tps_per_user": 68.18176332936655,
+          "e2e_output_tps_per_user": 67.87827916997364,
+          "completed": true
+        },
+        {
+          "ttft": 0.18269418199997745,
+          "time_to_second_token": 0.03783063099945139,
+          "latency": 0.0,
+          "inter_token_latency_avg": 0.012252798113014588,
+          "chunk_inter_token_latency_avg": 0.03806188350000276,
+          "input_tokens": 77,
+          "output_tokens": 585,
+          "output_tps_per_user": 81.61401100193002,
+          "e2e_output_tps_per_user": 0.0,
+          "completed": false
+        }
+      ],
+      "total_tokens": 35171,
+      "wall_time": 65.58116360099848,
+      "num_completed": 8,
+      "num_errors": 0,
+      "server_gen_throughput": 586.0884279267476,
+      "server_utilization": 0.12291893573984747,
+      "server_spec_accept_rate": 0.25636574074074076,
+      "server_spec_accept_length": 0.0,
+      "avg_running_reqs": 8.0,
+      "max_running_reqs": 8,
+      "effective_concurrency": 8.0,
+      "avg_queue_reqs": 0,
+      "max_queue_reqs": 0,
+      "queue_fraction": 0.0,
+      "underfilled": false,
+      "warmup_timed_out": false,
+      "warmup_duration": 5.564,
+      "ready_reason": "running_reqs=8/8, queue_reqs=0, active_streams=8/8, stable=3.0s",
+      "timeout_reason": "",
+      "capacity_limited": false,
+      "hardware_summary": {}
+    }
+  ],
+  "summary_table": {
+    "0": {
+      "8": 586.3775841797648
+    }
+  },
+  "burst_results": [],
+  "burst_summary_table": {},
+  "methodology": {
+    "prefill": {
+      "name": "Prefill",
+      "present": false,
+      "mode": "skipped",
+      "formula": "prompt_tokens / TTFT",
+      "notes": "Default mode records the required decode scout request for each non-zero decode context, so normal runs do not pay for a separate prefill phase. Standalone mode repeats cold-prefill samples. Prometheus prefill counters, when available and uncontaminated, are stored as validation."
+    },
+    "sustained_decode": {
+      "name": "Sustained Decode",
+      "present": true,
+      "formula": "OpenAI stream usage completion_tokens per measured window; client chunk fallback only when continuous usage is unavailable",
+      "notes": "Duration-based steady-state cell after warmup. This is the main tuning/regression signal for kernels, NCCL, DCP, MTP, and scheduling. Prometheus metrics are stored as validation and scheduler state, not the default headline."
+    },
+    "burst_e2e_decode": {
+      "name": "Burst / E2E Decode",
+      "present": false,
+      "status": "not run; use --run-burst",
+      "formula": "sum(completion_tokens) / profiling_wall_time",
+      "notes": "Finite client-facing request burst using OpenAI stream usage. It includes request admission, scheduling, prefill/cache behavior, and completion."
+    }
+  }
+}

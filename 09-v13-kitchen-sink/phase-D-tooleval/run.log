@@ -1,0 +1,48 @@
+[11:02:57] === Phase D begin ===
+[11:02:57] Endpoints to run: 8
+[11:02:57] Scenarios: --short (~15)
+[11:02:57] Cost cap: ~$5 (estimated actual: ~$2)
+[11:02:57] Budget: 60 min wall clock
+[11:02:57] SKIP  D1-local (already done)
+[11:02:57] RUN   D3-claude-sonnet-4.6  (openrouter, anthropic/claude-sonnet-4.6) — Anthropic flagship
+[11:04:39] DONE  D3-claude-sonnet-4.6 (102s)
+[11:04:39] RUN   D4-claude-haiku-4.5  (openrouter, anthropic/claude-haiku-4.5) — Anthropic cheap-tier
+[11:06:07] DONE  D4-claude-haiku-4.5 (88s)
+[11:06:07] RUN   D5-gpt-5.5  (openrouter, openai/gpt-5.5) — OpenAI flagship
+[11:07:43] DONE  D5-gpt-5.5 (96s)
+[11:07:43] RUN   D6-gpt-5-mini  (openrouter, openai/gpt-5-mini) — OpenAI cheap-tier
+[11:11:00] DONE  D6-gpt-5-mini (197s)
+[11:11:00] RUN   D7-gpt-5-nano  (openrouter, openai/gpt-5-nano) — OpenAI ultra-cheap baseline
+[11:17:18] DONE  D7-gpt-5-nano (378s)
+[11:17:18] RUN   D8-gemini-3.5-flash  (openrouter, google/gemini-3.5-flash) — Google flash-tier
+[11:18:18] DONE  D8-gemini-3.5-flash (60s)
+[11:18:18] RUN   D9-qwen-235b-cerebras  (cerebras, qwen-3-235b-a22b-instruct-2507) — Best Qwen at apex hardware
+[11:18:30] DONE  D9-qwen-235b-cerebras (12s)
+[11:18:30] === Phase D done in 933s ===
+[11:18:30]   Success: 7 -> D3-claude-sonnet-4.6 D4-claude-haiku-4.5 D5-gpt-5.5 D6-gpt-5-mini D7-gpt-5-nano D8-gemini-3.5-flash D9-qwen-235b-cerebras
+[11:18:30]   Failed:  0  -> <none>
+[11:18:30]   Skipped: 1 -> D1-local
+[11:18:30] === Building aggregate CSV ===
+[11:18:30] CSV: /home/josh/qwen-vllm-test/sweeps/v13-kitchen-sink-bf16dflash-and-fp8mtp3/phase-D-tooleval/leaderboard.csv
+[11:18:30] === Phase D complete ===
+[13:39:14] === Phase D begin ===
+[13:39:14] Endpoints to run: 8
+[13:39:14] Scenarios: --short (~15)
+[13:39:14] Cost cap: ~$5 (estimated actual: ~$2)
+[13:39:14] Budget: 60 min wall clock
+[13:39:14] RUN   D1-local  (local, Qwen3.6-27B) — current vLLM endpoint
+[13:40:00] DONE  D1-local (46s)
+[13:40:00] SKIP  D3-claude-sonnet-4.6 (already done)
+[13:40:00] SKIP  D4-claude-haiku-4.5 (already done)
+[13:40:00] SKIP  D5-gpt-5.5 (already done)
+[13:40:00] SKIP  D6-gpt-5-mini (already done)
+[13:40:00] SKIP  D7-gpt-5-nano (already done)
+[13:40:00] SKIP  D8-gemini-3.5-flash (already done)
+[13:40:00] SKIP  D9-qwen-235b-cerebras (already done)
+[13:40:00] === Phase D done in 46s ===
+[13:40:00]   Success: 1 -> D1-local
+[13:40:00]   Failed:  0  -> <none>
+[13:40:00]   Skipped: 7 -> D3-claude-sonnet-4.6 D4-claude-haiku-4.5 D5-gpt-5.5 D6-gpt-5-mini D7-gpt-5-nano D8-gemini-3.5-flash D9-qwen-235b-cerebras
+[13:40:00] === Building aggregate CSV ===
+[13:40:00] CSV: /home/josh/qwen-vllm-test/sweeps/v13-kitchen-sink-bf16dflash-and-fp8mtp3/phase-D-tooleval/leaderboard.csv
+[13:40:00] === Phase D complete ===
