@@ -1,0 +1,53 @@
+{
+  "elapsed_sec": 88.2300066947937,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null,
+    "VLLM_B12X_MOE_DECODE_A16": null
+  },
+  "generated_token_ids": [
+    2502,
+    780,
+    28689,
+    38334,
+    31708,
+    1116,
+    21988,
+    264,
+    30223,
+    13414,
+    1116,
+    369,
+    3272,
+    310,
+    2321,
+    494,
+    279
+  ],
+  "label": "C5-awq-6bit-single",
+  "max_tokens": 17,
+  "model": "QuantTrio/Qwen3.6-27B-AWQ-6Bit",
+  "num_logprob_positions": 17,
+  "output": "/sweep/addenda/C-teacher-forced-quants/results/C5-awq-6bit-single.safetensors",
+  "prompt_len": 2048,
+  "teacher_force_token_ids": [
+    2502,
+    780,
+    28689,
+    38334,
+    31708,
+    1116,
+    21988,
+    264,
+    30223,
+    13414,
+    1116,
+    369,
+    3272,
+    310,
+    2321,
+    494,
+    279
+  ],
+  "vocab_size": 248320
+}

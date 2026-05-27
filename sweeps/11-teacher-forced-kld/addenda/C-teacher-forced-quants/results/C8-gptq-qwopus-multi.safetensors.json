@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 308.6075692176819,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "C8-gptq-qwopus-multi",
+  "max_tokens": 64,
+  "model": "XReyRobert/Qwopus3.6-27B-v2-GPTQ-Pro-v1",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/addenda/C-teacher-forced-quants/results/C8-gptq-qwopus-multi.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}

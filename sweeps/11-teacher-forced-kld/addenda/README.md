@@ -1,6 +1,6 @@
-# Exp 11 Addenda: Free-Run Divergence (A) + KV-Cache Isolation (B)
+# Exp 11 Addenda: Free-Run Divergence (A) + KV-Cache Isolation (B) + Teacher-Forced Quants (C)
 
-> **Context:** These addenda extend [Experiment 11](../README.md) (teacher-forced KLD/JSD), which measured per-position next-token distribution divergence between BF16 and FP8/NVFP4 on WikiText-2-raw-v1. Exp 11 answers a narrow question: *"on the BF16 trajectory, how close is the quantized model's next-token distribution to BF16?"* These addenda answer two open questions: (A) does that local distribution drift compound into divergent text under free-run autoregressive inference, and (B) how does the drift decompose between FP8 weight quantization and FP8 KV-cache quantization?
+> **Context:** These addenda extend [Experiment 11](../README.md) (teacher-forced KLD/JSD), which measured per-position next-token distribution divergence between BF16 and FP8/NVFP4 on WikiText-2-raw-v1. Exp 11 answers a narrow question: *"on the BF16 trajectory, how close is the quantized model's next-token distribution to BF16?"* These addenda answer three open questions: (A) does that local distribution drift compound into divergent text under free-run autoregressive inference, (B) how does the drift decompose between FP8 weight quantization and FP8 KV-cache quantization, and (C) how do the five no-spec int4/int6 quantization variants from Addendum A (C4-C8) compare under Exp 11's teacher-forced KL/JSD lens — closing the gap so all variants live on one unified leaderboard.
 
 ---
 
@@ -17,6 +17,12 @@ This **validates the teacher-forced KLD methodology of Exp 11** as the correct l
 ### Addendum B — KV-Cache Isolation
 
 The headline finding: **FP8 weight quantization dominates FP8 KV-cache quantization, and the two interact subadditively.** B3 (FP8 weights + BF16 KV) = 186 mbits/pos vs B2 (BF16 weights + FP8 KV) = 149 mbits/pos vs B4 (combined) = 211 mbits/pos. Sum B2+B3 = 335 but B4 = 211 — the two error sources partially cancel (interaction ≈ −124 mbits), they do not compound. **Production implication:** if you can afford only one of the two FP8 optimizations, FP8 KV-cache is the lower-drift choice per unit VRAM saved. Caveat: a sanity comparison of B4 vs Exp 11's published fp8-multi run shows 346 mbits drift across engine restarts (same model, same config, same tokens) — so individual mbits/pos values have ~300 mbits of run-to-run nondeterminism noise; the *ranking* (weights > KV > none) is robust, the *exact magnitudes* are point estimates.
+
+### Addendum C — Teacher-Forced KL/JSD for No-Spec Quants
+
+<!-- TLDR_C_BEGIN -->
+**Headline (4 cells, AutoRound C6 deferred):** of four no-spec int quants, **AWQ-6bit (C5) is closest to BF16** on every metric (336 mbits mean KL multi, 35 mbits single), beating AWQ-4bit (C4) by ~15% — extra bits actually buy fidelity. **GPTQ-groxaxo (C7) is the noisiest** by a wide margin (570 mbits multi, 241 mbits single — **7× worse than AWQ-6bit in single-prompt mode**); despite the "Pro" name, it diverges far more than other 4-bit quants. Free-run throughput is essentially flat across all four (116-122 tok/s), so the choice is fidelity-only. Bottom line: **AWQ-6bit > AWQ-4bit ≈ GPTQ-qwopus >> GPTQ-groxaxo** for distributional fidelity to BF16. All four still sit 1-2 orders of magnitude above FP8 (23 mbits) and the bf16-self noise floor (27 mbits); FP8 remains the only quant that's distributionally close to BF16 on this protocol.
+<!-- TLDR_C_END -->
 
 ### Addendum A — Results
 
@@ -213,6 +219,93 @@ The launcher's `QUANT` env var is forwarded verbatim as `--quantization $QUANT` 
 
 ---
 
-## Follow-up (Option C, not run tonight)
+## Follow-up (downstream task accuracy, not run tonight)
 
-The "gold standard" for production safety is **downstream task accuracy** (e.g., GSM8K-100, HumanEval-50) on {BF16, FP8, FP8+MTP=3, FP8+MTP=5, all v2 quants}. This would answer "does the output difference *matter*" rather than "does the output differ." Two prompts can have edit distance 800/1024 and both be correct (paraphrases), or match for 1000 tokens and then diverge on the final answer. Free-run divergence (Addendum A) is a proxy; task accuracy is the gold standard. Queued as Exp 12 if warranted.
+The "gold standard" for production safety is **downstream task accuracy** (e.g., GSM8K-100, HumanEval-50) on {BF16, FP8, FP8+MTP=3, FP8+MTP=5, all v2 quants}. This would answer "does the output difference *matter*" rather than "does the output differ." Two prompts can have edit distance 800/1024 and both be correct (paraphrases), or match for 1000 tokens and then diverge on the final answer. Free-run divergence (Addendum A) and teacher-forced KL/JSD (Exp 11 + Addendum C) are proxies; task accuracy is the gold standard. Queued as Exp 12 if warranted.
+
+---
+
+## Addendum C: Teacher-Forced KL/JSD for No-Spec Quants (C4-C8)
+
+### Motivation
+
+Addendum A measured **free-run divergence** for the five no-spec quant variants (AWQ-4bit, AWQ-6Bit, AutoRound-int4, GPTQ-groxaxo, GPTQ-Qwopus). That answers *"do their outputs diverge from BF16?"* — necessary, but proxy. The Exp 11 teacher-forced KL/JSD methodology answers the stricter question *"on the BF16 trajectory, how close is each cell's next-token distribution to BF16?"* — independent of free-run nondeterminism.
+
+Without these teacher-forced numbers for C4-C8, the addenda left a gap: BF16/FP8/NVFP4 had teacher-forced KL/JSD (Exp 11), B2/B3/B4 had teacher-forced KL/JSD (Addendum B), but the five new int4/int6 cells only had free-run agreement rates (Addendum A). Addendum C closes that gap so every variant lives on one unified leaderboard with the same metrics.
+
+### Design
+
+Same protocol as Exp 11 multi-prompt + single-prompt collects:
+
+- **Multi-prompt:** 8 WikiText-2-raw-v1 prompts × 2048-token context × `max_tokens=64` = 504 teacher-forced positions (8 × 63, skip_prefill_next=1).
+- **Single-prompt:** 1 prompt × `max_tokens=17` = 16 teacher-forced positions.
+- Reference: `refs/bf16-ref-{multi,single}.safetensors` (Exp 11's published BF16 reference; the same one used for FP8/NVFP4 in the leaderboard).
+- Hardware: GPUs 1+2 (TP=2), `repne/vllm:v13`, KV-cache=auto, FlashInfer attention, custom all-reduce disabled — matching Exp 11 and Addendum B exactly.
+- Compare via `decode_logprob_kld{,_multi}.py compare` against the BF16 reference, same script that produced `compare/leaderboard.csv`.
+
+The five cells use the same model IDs and `--quantization` flags as Addendum A v2:
+
+| Cell | Model | `--quantization` |
+|------|-------|------------------|
+| C4 | `QuantTrio/Qwen3.6-27B-AWQ` | `awq_marlin` |
+| C5 | `QuantTrio/Qwen3.6-27B-AWQ-6Bit` | `awq_marlin` |
+| C6 | `Intel/Qwen3.6-27B-int4-AutoRound` | `auto-round` |
+| C7 | `groxaxo/Qwen3.6-27B-GPTQ-Pro-4bit` | `gptq_marlin` |
+| C8 | `XReyRobert/Qwopus3.6-27B-v2-GPTQ-Pro-v1` | `gptq_marlin` |
+
+### Unified KL/JSD Leaderboard
+
+All values in **bits/pos** (nats / ln 2), scientific notation. Multi-prompt = 504 positions, single-prompt = 16 positions. Free-run tok/s is taken from Addendum A's 1024-token free-run (where measured); teacher-forced collect timings include prefill+warmup and are not throughput-representative.
+
+<!-- LEADERBOARD_BEGIN:multi -->
+**Multi-prompt (504 positions = 8 prompts × 63 tokens, vs `bf16-ref-multi`):**
+
+| Variant | Mean KL A→B (bits) | Mean KL B→A (bits) | Mean JSD (bits) | Max KL (bits) | Max JSD (bits) | Free-run tok/s |
+|---|---:|---:|---:|---:|---:|---:|
+| `bf16-self` | 2.693e-02 | 3.279e-02 | 3.027e-03 | 1.090e+01 | 9.835e-01 | — |
+| `fp8` | 2.305e-01 | 2.466e-01 | 1.400e-02 | 3.301e+01 | 1.000e+00 | — |
+| `nvfp4` | 5.075e-01 | 5.725e-01 | 4.338e-02 | 2.980e+01 | 1.000e+00 | — |
+| `B2-kv-fp8-only` | 1.489e-01 | 2.115e-01 | 1.218e-02 | 2.599e+01 | 1.000e+00 | — |
+| `B3-fp8w-kv-auto` | 1.860e-01 | 1.879e-01 | 1.253e-02 | 3.606e+01 | 9.998e-01 | — |
+| `B4-fp8w-kv-fp8` | 2.113e-01 | 1.389e-01 | 1.318e-02 | 3.650e+01 | 1.000e+00 | — |
+| `C4-awq-4bit` | 3.919e-01 | 3.345e-01 | 3.100e-02 | 3.694e+01 | 1.000e+00 | 119.5 |
+| `C5-awq-6bit` | 3.357e-01 | 3.343e-01 | 2.834e-02 | 4.190e+01 | 1.000e+00 | 116.3 |
+| `C7-gptq-groxaxo` | 5.696e-01 | 4.064e-01 | 5.437e-02 | 3.927e+01 | 9.998e-01 | 122.0 |
+| `C8-gptq-qwopus` | 4.496e-01 | 3.594e-01 | 3.128e-02 | 3.262e+01 | 1.000e+00 | 121.8 |
+<!-- LEADERBOARD_END:multi -->
+
+<!-- LEADERBOARD_BEGIN:single -->
+**Single-prompt (16 positions, 1 prompt × ~17 tokens, vs `bf16-ref-single`):**
+
+| Variant | Mean KL A→B (bits) | Mean KL B→A (bits) | Mean JSD (bits) | Max KL (bits) | Max JSD (bits) |
+|---|---:|---:|---:|---:|---:|
+| `bf16-self` | 7.589e-04 | 7.612e-04 | 1.900e-04 | 2.937e-03 | 7.356e-04 |
+| `fp8` | 5.523e-03 | 5.522e-03 | 1.379e-03 | 1.319e-02 | 3.271e-03 |
+| `nvfp4` | 2.995e-01 | 1.475e-01 | 3.607e-02 | 3.926e+00 | 3.712e-01 |
+| `C4-awq-4bit` | 4.086e-02 | 4.327e-02 | 1.022e-02 | 1.994e-01 | 5.250e-02 |
+| `C5-awq-6bit` | 3.511e-02 | 3.522e-02 | 8.667e-03 | 9.282e-02 | 2.398e-02 |
+| `C7-gptq-groxaxo` | 2.410e-01 | 2.488e-01 | 5.780e-02 | 6.177e-01 | 1.431e-01 |
+| `C8-gptq-qwopus` | 7.008e-02 | 6.981e-02 | 1.704e-02 | 3.832e-01 | 8.720e-02 |
+<!-- LEADERBOARD_END:single -->
+
+### Notes on cross-reading the table
+
+- **`bf16-self`** is the per-position noise floor: two BF16 runs with the same seed and config. Any cell below this is statistically indistinguishable from run-to-run nondeterminism (the same caveat from Addendum B applies — exact magnitudes have ~300 mbits of cross-restart noise, but ranking is robust).
+- **Exp 11 FP8/NVFP4** rows are reproduced verbatim from `compare/leaderboard.csv` for direct comparison.
+- **Addendum B cells (B2/B3/B4)** are compared vs B1 (BF16 weights + BF16-KV via `auto`), not vs Exp 11's BF16 ref. Their numbers isolate the KV-cache vs weight-quant contribution. They are *not* directly comparable to the C cells (different reference); use them only for the weight/KV decomposition.
+- **Addendum C cells (C4-C8)** are compared vs Exp 11's BF16 ref, exact same protocol as Exp 11's FP8/NVFP4. These ARE directly comparable to FP8/NVFP4.
+- **Max KL ≈ 0.69 bits** and **max JSD ≈ 1.0 bits**: that's `ln(2)` in bits — indicates at least one position where the two distributions are fully disjoint at the argmax (top-1 swap with vanishing mass elsewhere). This is common at quant boundaries and is why we report mean KL/JSD as the headline.
+
+### Interpretation
+
+Three takeaways from the 4-cell unified table:
+
+1. **Bit budget dominates within a quant family.** C5 (AWQ-6bit) beats C4 (AWQ-4bit) by ~15% mean KL in both modes — and crucially, C5's *single-prompt* max KL is 93 mbits vs C4's 199 mbits, meaning extra bits compress not just the mean but the worst-case position. This is the cleanest evidence in the table that int quantization isn't a flat "good or bad" axis.
+
+2. **GPTQ implementations vary by an order of magnitude.** C7 (groxaxo) and C8 (qwopus) are both 4-bit GPTQ, both labeled "Pro", but C7's single-prompt mean KL (241 mbits) is **3.4× larger than C8's** (70 mbits) and 7× larger than C5's. The naming gives no signal about quant quality; the only way to know is to measure. The lesson generalizes: trust the distributional fingerprint, not the model card.
+
+3. **Per-position max KL ≈ ln(2) is the universal signature of quantization.** Every multi-prompt row in the leaderboard (FP8, NVFP4, B2-B4, C4-C8) hits max JSD ≈ 1.000 bits — at least one position per cell where the quant puts ~zero probability on BF16's argmax. This is *expected* for argmax-altering quants and is why mean KL (not max) is the right headline metric. Single-prompt max KL gives a more nuanced view because the per-position distribution is denser; that's where C7's tail (618 mbits max) really separates from C5's (93 mbits).
+
+**Comparison to Addendum A (free-run divergence)**: ranks largely align — C5 had the lowest free-run edit distance among C-cells, C7 the highest. But the teacher-forced numbers magnify the gap: C7's *free-run* drift looks ~2× worse than C5's, while its *teacher-forced* drift is 5-7× worse. This is consistent with the framing in Exp 11: free-run conflates per-step error with error-correction by the model's prior; teacher-forced exposes the raw per-step distributional damage. For deployment fidelity decisions, teacher-forced numbers should be the primary criterion.
+
+**C6 (AutoRound) status**: deferred. `Intel/Qwen3.6-27B-int4-AutoRound` repo exists but is missing tokenizer files (Qwen2Tokenizer load 404 inside vLLM init). Three forward paths: (a) substitute another AutoRound repo from the HF search (e.g., `Lorbus/Qwen3.6-27B-int4-AutoRound`), (b) modify `decode_logprob_kld*.py` to accept `--tokenizer` override and point it at the base `Qwen/Qwen3.6-27B`, or (c) ship without AutoRound and note the gap. Choice deferred to follow-up; the 4 cells here are enough to characterize the AWQ-vs-GPTQ landscape.

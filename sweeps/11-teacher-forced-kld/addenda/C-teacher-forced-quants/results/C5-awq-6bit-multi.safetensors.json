@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 306.59922671318054,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "C5-awq-6bit-multi",
+  "max_tokens": 64,
+  "model": "QuantTrio/Qwen3.6-27B-AWQ-6Bit",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/addenda/C-teacher-forced-quants/results/C5-awq-6bit-multi.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}

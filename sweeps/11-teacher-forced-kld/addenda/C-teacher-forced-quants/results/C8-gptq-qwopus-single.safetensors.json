@@ -1,0 +1,53 @@
+{
+  "elapsed_sec": 97.47221636772156,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null,
+    "VLLM_B12X_MOE_DECODE_A16": null
+  },
+  "generated_token_ids": [
+    2502,
+    780,
+    28689,
+    38334,
+    31708,
+    1116,
+    21988,
+    264,
+    30223,
+    13414,
+    1116,
+    369,
+    3272,
+    310,
+    2321,
+    494,
+    279
+  ],
+  "label": "C8-gptq-qwopus-single",
+  "max_tokens": 17,
+  "model": "XReyRobert/Qwopus3.6-27B-v2-GPTQ-Pro-v1",
+  "num_logprob_positions": 17,
+  "output": "/sweep/addenda/C-teacher-forced-quants/results/C8-gptq-qwopus-single.safetensors",
+  "prompt_len": 2048,
+  "teacher_force_token_ids": [
+    2502,
+    780,
+    28689,
+    38334,
+    31708,
+    1116,
+    21988,
+    264,
+    30223,
+    13414,
+    1116,
+    369,
+    3272,
+    310,
+    2321,
+    494,
+    279
+  ],
+  "vocab_size": 248320
+}

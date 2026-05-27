@@ -1,0 +1,15 @@
+{
+  "elapsed_sec": 306.72815680503845,
+  "env": {
+    "B12X_MOE_FORCE_A16": null,
+    "VLLM_B12X_FORCE_MOE_A16": null
+  },
+  "label": "C7-gptq-groxaxo-multi",
+  "max_tokens": 64,
+  "model": "groxaxo/Qwen3.6-27B-GPTQ-Pro-4bit",
+  "num_logprob_positions": 64,
+  "num_prompts": 8,
+  "output": "/sweep/addenda/C-teacher-forced-quants/results/C7-gptq-groxaxo-multi.safetensors",
+  "prompt_len": 2048,
+  "vocab_size": 248320
+}
