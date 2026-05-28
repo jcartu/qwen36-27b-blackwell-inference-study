@@ -22,7 +22,7 @@ mkdir -p "$RESULTS" "$COMPARE" "$LOGS"
 ALL_CELLS=(
   "C4-awq-4bit|QuantTrio/Qwen3.6-27B-AWQ|awq_marlin"
   "C5-awq-6bit|QuantTrio/Qwen3.6-27B-AWQ-6Bit|awq_marlin"
-  "C6-autoround-int4|Intel/Qwen3.6-27B-int4-AutoRound|auto-round"
+  "C6-autoround-int4|Lorbus/Qwen3.6-27B-int4-AutoRound|auto-round"
   "C7-gptq-groxaxo|groxaxo/Qwen3.6-27B-GPTQ-Pro-4bit|gptq_marlin"
   "C8-gptq-qwopus|XReyRobert/Qwopus3.6-27B-v2-GPTQ-Pro-v1|gptq_marlin"
 )

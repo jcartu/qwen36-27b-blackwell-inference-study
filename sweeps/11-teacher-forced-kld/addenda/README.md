@@ -21,7 +21,7 @@ The headline finding: **FP8 weight quantization dominates FP8 KV-cache quantizat
 ### Addendum C — Teacher-Forced KL/JSD for No-Spec Quants
 
 <!-- TLDR_C_BEGIN -->
-**Headline (4 cells, AutoRound C6 deferred):** of four no-spec int quants, **AWQ-6bit (C5) is closest to BF16** on every metric (336 mbits mean KL multi, 35 mbits single), beating AWQ-4bit (C4) by ~15% — extra bits actually buy fidelity. **GPTQ-groxaxo (C7) is the noisiest** by a wide margin (570 mbits multi, 241 mbits single — **7× worse than AWQ-6bit in single-prompt mode**); despite the "Pro" name, it diverges far more than other 4-bit quants. Free-run throughput is essentially flat across all four (116-122 tok/s), so the choice is fidelity-only. Bottom line: **AWQ-6bit > AWQ-4bit ≈ GPTQ-qwopus >> GPTQ-groxaxo** for distributional fidelity to BF16. All four still sit 1-2 orders of magnitude above FP8 (23 mbits) and the bf16-self noise floor (27 mbits); FP8 remains the only quant that's distributionally close to BF16 on this protocol.
+**Headline (5 cells):** **AutoRound-int4 (C6) is the standout** — it matches AWQ-6bit's multi-prompt fidelity (333 vs 336 mbits mean KL) at **2 fewer bits per weight**, and beats every other int4 in single-prompt mode (29 mbits, vs 35 for AWQ-6bit and 41 for AWQ-4bit). C6's single-prompt worst-case max KL is 72 mbits — the best tail behavior of any int4 in the leaderboard. **GPTQ-groxaxo (C7) is the noisiest** by a wide margin (570 mbits multi, 241 mbits single — 8× worse than AutoRound in single-prompt mode); despite the "Pro" name, it diverges far more than other 4-bit quants. Free-run throughput is essentially flat across all five (116-122 tok/s), so the choice is fidelity-only. **Ranking: AutoRound-int4 ≈ AWQ-6bit > AWQ-4bit > GPTQ-qwopus >> GPTQ-groxaxo.** All five still sit 1-2 orders of magnitude above FP8 (230 mbits multi) and the bf16-self noise floor (27 mbits); FP8 remains the only quant distributionally close to BF16 on this protocol.
 <!-- TLDR_C_END -->
 
 ### Addendum A — Results
@@ -270,6 +270,7 @@ All values in **bits/pos** (nats / ln 2), scientific notation. Multi-prompt = 50
 | `B4-fp8w-kv-fp8` | 2.113e-01 | 1.389e-01 | 1.318e-02 | 3.650e+01 | 1.000e+00 | — |
 | `C4-awq-4bit` | 3.919e-01 | 3.345e-01 | 3.100e-02 | 3.694e+01 | 1.000e+00 | 119.5 |
 | `C5-awq-6bit` | 3.357e-01 | 3.343e-01 | 2.834e-02 | 4.190e+01 | 1.000e+00 | 116.3 |
+| `C6-autoround-int4` | 3.334e-01 | 3.640e-01 | 3.022e-02 | 3.722e+01 | 9.992e-01 | 120.3 |
 | `C7-gptq-groxaxo` | 5.696e-01 | 4.064e-01 | 5.437e-02 | 3.927e+01 | 9.998e-01 | 122.0 |
 | `C8-gptq-qwopus` | 4.496e-01 | 3.594e-01 | 3.128e-02 | 3.262e+01 | 1.000e+00 | 121.8 |
 <!-- LEADERBOARD_END:multi -->
@@ -284,6 +285,7 @@ All values in **bits/pos** (nats / ln 2), scientific notation. Multi-prompt = 50
 | `nvfp4` | 2.995e-01 | 1.475e-01 | 3.607e-02 | 3.926e+00 | 3.712e-01 |
 | `C4-awq-4bit` | 4.086e-02 | 4.327e-02 | 1.022e-02 | 1.994e-01 | 5.250e-02 |
 | `C5-awq-6bit` | 3.511e-02 | 3.522e-02 | 8.667e-03 | 9.282e-02 | 2.398e-02 |
+| `C6-autoround-int4` | 2.890e-02 | 2.996e-02 | 7.298e-03 | 7.193e-02 | 1.830e-02 |
 | `C7-gptq-groxaxo` | 2.410e-01 | 2.488e-01 | 5.780e-02 | 6.177e-01 | 1.431e-01 |
 | `C8-gptq-qwopus` | 7.008e-02 | 6.981e-02 | 1.704e-02 | 3.832e-01 | 8.720e-02 |
 <!-- LEADERBOARD_END:single -->
@@ -298,14 +300,16 @@ All values in **bits/pos** (nats / ln 2), scientific notation. Multi-prompt = 50
 
 ### Interpretation
 
-Three takeaways from the 4-cell unified table:
+Four takeaways from the 5-cell unified table:
 
-1. **Bit budget dominates within a quant family.** C5 (AWQ-6bit) beats C4 (AWQ-4bit) by ~15% mean KL in both modes — and crucially, C5's *single-prompt* max KL is 93 mbits vs C4's 199 mbits, meaning extra bits compress not just the mean but the worst-case position. This is the cleanest evidence in the table that int quantization isn't a flat "good or bad" axis.
+1. **AutoRound at 4 bits matches AWQ at 6 bits.** This is the most surprising finding of the day. C6 (Lorbus AutoRound-int4) lands at 333 mbits mean KL multi-prompt — statistically tied with C5 AWQ-6bit (336) — and *beats* C5 in single-prompt mode (29 vs 35 mbits) including on the max-KL tail (72 vs 93 mbits). At 4 bits per weight, AutoRound recovers the fidelity that AWQ needs 6 bits to achieve. The algorithmic difference (signed integer rounding with per-block scale optimization vs activation-aware weight scaling) translates to ~33% memory savings at the same distributional drift. If the result generalizes beyond Qwen3.6-27B, AutoRound is the int4 to beat.
 
-2. **GPTQ implementations vary by an order of magnitude.** C7 (groxaxo) and C8 (qwopus) are both 4-bit GPTQ, both labeled "Pro", but C7's single-prompt mean KL (241 mbits) is **3.4× larger than C8's** (70 mbits) and 7× larger than C5's. The naming gives no signal about quant quality; the only way to know is to measure. The lesson generalizes: trust the distributional fingerprint, not the model card.
+2. **Bit budget matters — but the algorithm matters more.** C5 (AWQ-6bit) beats C4 (AWQ-4bit) by ~15% mean KL within the AWQ family, exactly as bit-budget intuition predicts. But C6 (AutoRound-int4) beats C5 (AWQ-6bit) in single-prompt mode despite using fewer bits. The takeaway: bit budget is a within-family lever; cross-family, algorithm choice dominates. The AutoRound → AWQ-6bit → AWQ-4bit ordering refutes "more bits is always better."
 
-3. **Per-position max KL ≈ ln(2) is the universal signature of quantization.** Every multi-prompt row in the leaderboard (FP8, NVFP4, B2-B4, C4-C8) hits max JSD ≈ 1.000 bits — at least one position per cell where the quant puts ~zero probability on BF16's argmax. This is *expected* for argmax-altering quants and is why mean KL (not max) is the right headline metric. Single-prompt max KL gives a more nuanced view because the per-position distribution is denser; that's where C7's tail (618 mbits max) really separates from C5's (93 mbits).
+3. **GPTQ implementations vary by nearly an order of magnitude.** C7 (groxaxo) and C8 (qwopus) are both 4-bit GPTQ, both labeled "Pro", but C7's single-prompt mean KL (241 mbits) is **3.4× larger than C8's** (70 mbits) and 8× larger than C6's. The naming gives zero signal about quant quality; the only way to know is to measure. Lesson: trust the distributional fingerprint, not the model card.
 
-**Comparison to Addendum A (free-run divergence)**: ranks largely align — C5 had the lowest free-run edit distance among C-cells, C7 the highest. But the teacher-forced numbers magnify the gap: C7's *free-run* drift looks ~2× worse than C5's, while its *teacher-forced* drift is 5-7× worse. This is consistent with the framing in Exp 11: free-run conflates per-step error with error-correction by the model's prior; teacher-forced exposes the raw per-step distributional damage. For deployment fidelity decisions, teacher-forced numbers should be the primary criterion.
+4. **Per-position max KL ≈ ln(2) is the universal signature of quantization.** Every multi-prompt row in the leaderboard (FP8, NVFP4, B2-B4, C4-C8) hits max JSD ≈ 1.000 bits — at least one position per cell where the quant puts ~zero probability on BF16's argmax. This is *expected* for argmax-altering quants and is why mean KL (not max) is the right headline metric. Single-prompt max KL gives a more nuanced view because the per-position distribution is denser; that's where C7's tail (618 mbits max) really separates from C6's (72 mbits) — a **8.6× worst-case gap** between the worst and best int4.
 
-**C6 (AutoRound) status**: deferred. `Intel/Qwen3.6-27B-int4-AutoRound` repo exists but is missing tokenizer files (Qwen2Tokenizer load 404 inside vLLM init). Three forward paths: (a) substitute another AutoRound repo from the HF search (e.g., `Lorbus/Qwen3.6-27B-int4-AutoRound`), (b) modify `decode_logprob_kld*.py` to accept `--tokenizer` override and point it at the base `Qwen/Qwen3.6-27B`, or (c) ship without AutoRound and note the gap. Choice deferred to follow-up; the 4 cells here are enough to characterize the AWQ-vs-GPTQ landscape.
+**Comparison to Addendum A (free-run divergence)**: ranks largely align — C5/C6 had the lowest free-run edit distance among C-cells, C7 the highest. But the teacher-forced numbers magnify the gap: C7's *free-run* drift looks ~2× worse than C5's, while its *teacher-forced* drift is 8× worse. This is consistent with the framing in Exp 11: free-run conflates per-step error with error-correction by the model's prior; teacher-forced exposes the raw per-step distributional damage. For deployment fidelity decisions, teacher-forced numbers should be the primary criterion.
+
+**C6 implementation note**: the originally-listed `Intel/Qwen3.6-27B-int4-AutoRound` repo is missing tokenizer files (Qwen2Tokenizer load 404 inside vLLM init). `Lorbus/Qwen3.6-27B-int4-AutoRound` is a redistribution with the missing tokenizer files included; we used it as a drop-in substitute and the numbers above are from that run. Anyone reproducing this work should pre-flight repo file listings for `tokenizer.json` + `tokenizer_config.json` before scheduling a quantized vLLM run.

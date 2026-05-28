@@ -1,0 +1,71 @@
+{
+  "a": "/sweep/refs/bf16-ref-multi.safetensors",
+  "b": "/sweep/addenda/C-teacher-forced-quants/results/C6-autoround-int4-multi.safetensors",
+  "js_max": 0.6925824880599976,
+  "js_mean": 0.020945698022842407,
+  "kl_a_to_b_max": 25.798126220703125,
+  "kl_a_to_b_mean": 0.2311255931854248,
+  "kl_b_to_a_max": 23.86306381225586,
+  "kl_b_to_a_mean": 0.2523130178451538,
+  "num_positions": 504,
+  "num_prompts": 8,
+  "per_prompt": [
+    {
+      "js_mean": 0.0061441268771886826,
+      "kl_a_to_b_mean": 0.024623773992061615,
+      "kl_b_to_a_mean": 0.025798313319683075,
+      "num_positions": 63,
+      "prompt_index": 0
+    },
+    {
+      "js_mean": 0.007481147535145283,
+      "kl_a_to_b_mean": 0.031168418005108833,
+      "kl_b_to_a_mean": 0.03215636685490608,
+      "num_positions": 63,
+      "prompt_index": 1
+    },
+    {
+      "js_mean": 0.004521914757788181,
+      "kl_a_to_b_mean": 0.020341452211141586,
+      "kl_b_to_a_mean": 0.018002904951572418,
+      "num_positions": 63,
+      "prompt_index": 2
+    },
+    {
+      "js_mean": 0.10144905000925064,
+      "kl_a_to_b_mean": 1.5553126335144043,
+      "kl_b_to_a_mean": 1.7022840976715088,
+      "num_positions": 63,
+      "prompt_index": 3
+    },
+    {
+      "js_mean": 0.005925701931118965,
+      "kl_a_to_b_mean": 0.024921124801039696,
+      "kl_b_to_a_mean": 0.0250219888985157,
+      "num_positions": 63,
+      "prompt_index": 4
+    },
+    {
+      "js_mean": 0.024058105424046516,
+      "kl_a_to_b_mean": 0.10880232602357864,
+      "kl_b_to_a_mean": 0.13755042850971222,
+      "num_positions": 63,
+      "prompt_index": 5
+    },
+    {
+      "js_mean": 0.009967166930437088,
+      "kl_a_to_b_mean": 0.04100603237748146,
+      "kl_b_to_a_mean": 0.0454728938639164,
+      "num_positions": 63,
+      "prompt_index": 6
+    },
+    {
+      "js_mean": 0.0080183707177639,
+      "kl_a_to_b_mean": 0.042829059064388275,
+      "kl_b_to_a_mean": 0.03221703693270683,
+      "num_positions": 63,
+      "prompt_index": 7
+    }
+  ],
+  "skip_prefill_next": 1
+}
