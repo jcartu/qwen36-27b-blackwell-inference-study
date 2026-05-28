@@ -47,7 +47,9 @@ MTP=5 wins isolated cells at low concurrency. Documented here for completeness.
 
 ---
 
-## 2. Quality SOTA: 8-bit weight quantization is empirically lossless
+## 2. Quality SOTA: 8-bit is lossless; 4-bit AutoRound is within 1.5× on teacher-forced KL
+
+### 2.1 Perplexity reference (Wikitext-2, GGUF path)
 
 Wikitext-2 perplexity (102 200 token positions, 200 sliding windows × 511 positions, ctx=512, stride=128):
 
@@ -59,7 +61,37 @@ Wikitext-2 perplexity (102 200 token positions, 200 sliding windows × 511 posit
 
 *The AesSedai perplexity tool reads GGUF only, so we cannot directly perplex the FP8 W8A8 vLLM weights. Quality is inferred from (a) Qwen team's own model-card claim of "performance metrics nearly identical to original," (b) Phase B functional-test parity (8/8 hard tests pass on FP8), and (c) the principle that any 8-bit quant near BF16 should also be near BF16's KLD floor.
 
----
+### 2.2 Teacher-forced KL/JSD fidelity (vLLM path, Exp 11 + Addendum C)
+
+Mean KL of BF16 → quant logits across 504 WikiText-2-raw-v1 positions (multi-prompt) and 16 positions (single-prompt). Lower = closer to BF16. Source: [Exp 11 Addendum C](sweeps/11-teacher-forced-kld/addenda/).
+
+| Quant | Bits/wt | Multi-prompt mean KL (mbits) | Single-prompt mean KL (mbits) | Single-prompt max KL (mbits) | Verdict |
+|---|---:|---:|---:|---:|---|
+| BF16 self (noise floor) | 16 | 27 | 0.76 | 2.9 | reference jitter |
+| **FP8 W8A8** | 8 | **230** | **5.5** | **13** | **production quant** |
+| **AutoRound-int4** (Lorbus repo) | 4 | **333** | **29** | **72** | **best int4 in stack** |
+| AWQ-6bit | 6 | 336 | 35 | 93 | tied with AutoRound multi; loses single |
+| AWQ-4bit | 4 | 392 | 41 | 199 | bit-budget cost vs AWQ-6bit |
+| GPTQ-qwopus (Pro) | 4 | 450 | 70 | 383 | mid-pack |
+| NVFP4 | 4 | 508 | 300 | 3,926 | **noisy** — see §3 disqualification |
+| GPTQ-groxaxo (Pro) | 4 | 570 | 241 | 618 | worst int4 in stack |
+
+**Key findings:**
+- **FP8 is ~1.4× the bf16-self noise floor** on multi-prompt mean KL — essentially indistinguishable from BF16 jitter at single-prompt scale (5.5 mbits vs 0.76 mbits floor).
+- **AutoRound-int4 matches AWQ-6bit on multi-prompt mean KL (333 vs 336 mbits) at 2 fewer bits per weight**, and beats it in single-prompt mode (29 vs 35). At 4 bits, AutoRound recovers the fidelity that AWQ needs 6 bits to achieve — the most efficient int quant in the stack.
+- **Bit budget is a within-family lever; cross-family, algorithm dominates.** AWQ-6bit > AWQ-4bit (as expected). But AutoRound-int4 ≥ AWQ-6bit (against bit-budget intuition).
+- **GPTQ quality varies by 3-8× between vendors** of the same nominal bit width — "Pro" labels carry no signal. Always measure.
+- **Per-position max JSD ≈ ln(2) bits for every quant** — universal signature of argmax-altering quantization. Mean KL is the correct headline metric.
+
+### 2.3 Quality decision rule (updated)
+
+```
+Need BF16-equivalent fidelity?       → BF16 (no spec) or BF16+DFlash
+Need ~99% BF16 fidelity?             → FP8 W8A8 (production quant)
+Memory-bound at 4-bit budget?        → AutoRound-int4 (best int4 measured)
+Avoid:                               → NVFP4 (quality + engine instability)
+Avoid:                               → GPTQ-groxaxo (8× noisier than peers)
+```
 
 ## 3. Cross-quant performance comparison (single best cell per config)
 
@@ -73,7 +105,7 @@ Wikitext-2 perplexity (102 200 token positions, 200 sliding windows × 511 posit
 | BF16+DFlash=15 (Repne) | 313.4 | c=4 × 0 | 178.5 | Repne's recommended config — actually worst of three |
 | FP8+MTP=3 (upstream v0.20.1) | 413.8 | c=4 × 0 | not measured at depth | Viable fallback |
 | BF16+DFlash=8 (upstream v0.20.1) | 290.9 | c=4 × 0 | n/a | **Long-context broken**, drafter accepts 1–3% at 131k |
-| NVFP4+MTP=3 (upstream v0.20.1) | 416.6 | c=4 × 0 | mean drops to 95–106 by c=2 ctx=131k | **Broken at 244k**, disqualified |
+| NVFP4+MTP=3 (upstream v0.20.1) | 416.6 | c=4 × 0 | mean drops to 95–106 by c=2 ctx=131k | **Broken at 244k + 508 mbits KL** (see §2.2), disqualified |
 | NVFP4+MTP=3 (Repne) | 175.8 | c=4 × 0 | n/a | 50% worse than upstream — Repne flags hurt NVFP4 |
 
 ---
