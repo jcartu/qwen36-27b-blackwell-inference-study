@@ -88,7 +88,7 @@ Mean KL of BF16 → quant logits across 504 WikiText-2-raw-v1 positions (multi-p
 ```
 Need BF16-equivalent fidelity?       → BF16 (no spec) or BF16+DFlash
 Need ~99% BF16 fidelity?             → FP8 W8A8 (production quant)
-Memory-bound at 4-bit budget?        → AutoRound-int4 (best int4 measured)
+Memory-bound at 4-bit budget?        → AutoRound-int4 (best int4 measured; throughput-tied with FP8+MTP=3, see [Exp 12](../12-autoround-mtp-vs-fp8-mtp/))
 Avoid:                               → NVFP4 (quality + engine instability)
 Avoid:                               → GPTQ-groxaxo (8× noisier than peers)
 ```
@@ -147,4 +147,5 @@ Every claim in this document is reproducible from raw `results.json` files in th
 - Cross-fork comparison: [Experiment 4](../04-fp8-mtp3-headtohead/), [Experiment 5](../05-bf16-dflash-headtohead/)
 - MTP n sweep: [Experiment 7 Phase C](../07-quality-sprint/phase-c-fp8-sweep/)
 - Functional-gate logs: [Experiment 7 phase logs](../07-quality-sprint/), [Experiment 6 gates](../06-new-image-validation/gates/)
+- Quant SOTA verification: [Experiment 12](../12-autoround-mtp-vs-fp8-mtp/) (AutoRound-int4+MTP=3 vs FP8+MTP=3 head-to-head; FP8 retains SOTA)
 - Master CSV: [`master-results.csv`](master-results.csv) (328 rows, all experiments)
